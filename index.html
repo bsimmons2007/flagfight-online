@@ -299,6 +299,19 @@ body[data-board="campus"] .c.l1{background:#311F5C}body[data-board="campus"] .c.
 body[data-board="campus"] .c.l2{background:#523A1B}body[data-board="campus"] .c.l2.k{background:#4A3216}
 body[data-board="campus"] .c.slide{background:#6B4BD0}body[data-board="campus"] .c.jail{background:#4B4560}
 body[data-board="campus"] .c.x14::after{background:#F4E9C9}
+.score{font-family:var(--disp);font-weight:800;font-size:18px;background:#11182A;border:2px solid var(--line);border-radius:999px;padding:2px 14px}
+.rpop{width:min(560px,100%);align-items:center;text-align:center;gap:12px}
+.rpop .rt{font-family:var(--disp);font-weight:800;font-size:44px;line-height:1}
+.rpop .rs{font-family:var(--disp);font-weight:800;font-size:30px}
+.rpop .rw{color:var(--soft);font-size:15px;line-height:1.4}
+.rpop .btn{min-height:56px;padding:0 36px;font-size:17px;margin-top:6px}
+body[data-art="1"] #board{background:var(--boardart) center/100% 100% no-repeat,#05080F}
+body[data-art="1"] .c:not(.hl):not(.st){box-shadow:inset 0 0 0 .5px rgb(0 0 0 / .35)}
+body[data-art="1"] .c.l1,body[data-art="1"] .c.l1.k{background-color:rgb(26 48 82 / .22)}
+body[data-art="1"] .c.l2,body[data-art="1"] .c.l2.k{background-color:rgb(66 34 47 / .22)}
+body[data-art="1"] .c.mud{background-color:rgb(122 86 48 / .85)}
+body[data-art="1"] .c.slide{background-color:rgb(47 106 168 / .85)}
+body[data-art="1"] .c.jail{background-color:rgb(75 80 96 / .8)}
 @media(prefers-reduced-motion:reduce){*{animation-duration:0s!important;transition-duration:0s!important}}
 </style>
 </head>
@@ -316,6 +329,7 @@ const dist=(a,b)=>Math.max(Math.abs(a.x-b.x),Math.abs(a.y-b.y));
 const rot=(x,y)=>[W-1-x,H-1-y];
 const D4=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}], HD=D4.slice(0,2), VD=D4.slice(2);
 class GameOver extends Error{}
+class RoundOver extends Error{constructor(team,why,mvp){super('round');this.team=team;this.why=why;this.mvp=mvp;}}
 
 // [name,type,save,passive,active]
 const ROSTER=[
@@ -359,7 +373,15 @@ const baseCells=t=>{const o=[];for(let x=0;x<W;x++)for(let y=0;y<H;y++)if(SAFE[y
 
 // ---------- settings and sound ----------
 const SET=(()=>{let o={sound:true,rm:false,odds:false,board:'forest'};try{o.rm=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);Object.assign(o,JSON.parse(localStorage.getItem('flagfight.settings')||'{}'));}catch(e){}return o;})();
-function applySet(){document.documentElement.dataset.rm=SET.rm?'1':'';if(document.body)document.body.dataset.board=SET.board;}
+const ART_OK={};
+function loadArt(){['board','board-campus'].forEach(n=>{const im=new Image();im.onload=()=>{ART_OK[n]=true;applySet();};im.src='art/'+n+'.png';});}
+function applySet(){
+  document.documentElement.dataset.rm=SET.rm?'1':'';
+  if(!document.body)return;
+  document.body.dataset.board=SET.board;
+  const n=SET.board==='campus'&&ART_OK['board-campus']?'board-campus':(ART_OK.board?'board':'');
+  if(n){document.body.style.setProperty('--boardart',"url('art/"+n+".png')");document.body.dataset.art='1';}else{document.body.dataset.art='';}
+}
 function saveSet(){try{localStorage.setItem('flagfight.settings',JSON.stringify(SET));}catch(e){}applySet();}
 let AC=null;
 function sfx(n){
@@ -390,7 +412,7 @@ function evt(text,team){if(G&&G.stats&&G.stats.events.length<80)G.stats.events.p
 let G, UI={prompt:'',buttons:[],cells:null,resolve:null,banner:''};
 function newGame(){
   const rules=G?G.rules:{stack:true},names=G?G.names:null,ai=G?G.ai:null;
-  G={phase:'setup',rules,chars:[],tokens:trackedTokens(),flags:{1:{x:3,y:7,c:null},2:{x:26,y:7,c:null}},markers:[],cur:1,log:[],over:null,dice:null,used:[0,0],picks:[],drafter:0,order:[],pending:false,coin:null,names,ai,sel:null,sub:'',stats:newStats(),trail:null};
+  G={phase:'setup',rules,chars:[],tokens:trackedTokens(),flags:{1:{x:3,y:7,c:null},2:{x:26,y:7,c:null}},markers:[],cur:1,log:[],over:null,dice:null,used:[0,0],picks:[],drafter:0,order:[],pending:false,coin:null,names,ai,sel:null,sub:'',stats:newStats(),trail:null,score:{1:0,2:0},round:1,rt0:0};
 }
 const ch=id=>G.chars[id];
 const teamChars=t=>G.chars.filter(c=>c.team===t);
@@ -518,11 +540,34 @@ function applyMove(c,r){
 function checkWin(){
   for(const t of [1,2]){
     const f=G.flags[3-t];
-    if(f.c!=null){const k=ch(f.c);if(homeReached(k))win(k.team,`${k.name} #${numOf(k.name)} carried the flag across the midline.`,k.id);}
-    if(teamChars(t).every(c=>c.jail))win(3-t,`All of ${tn(t)}'s characters are in jail.`);
+    if(f.c!=null){const k=ch(f.c);if(homeReached(k))point(k.team,`${k.name} #${numOf(k.name)} carried the flag across the midline`,k.id);}
+    if(teamChars(t).every(c=>c.jail))point(3-t,`All of ${tn(t)}'s characters were jailed`);
   }
 }
 function homeReached(k){return terr(k.x)===k.team;}
+function point(team,why,mvp){
+  G.score[team]++;
+  const other=3-team;
+  if(G.score[team]>=2){win(team,`${why}, winning ${G.score[team]} to ${G.score[other]}.`,mvp);}
+  sfx('win');evt(`${why}. Point to ${tn(team)}`,team);log(`Point to ${tn(team)}: ${why}`);
+  throw new RoundOver(team,why,mvp);
+}
+function resetRound(next){
+  for(const t of [1,2]){
+    teamChars(t).forEach((c,i)=>{const p=START[t][i];c.x=p.x;c.y=p.y;c.jail=false;c.frozen=0;c.skipAct=0;c.exempt=0;c.cheer=false;});
+    G.flags[t]={x:HOME[t].x,y:HOME[t].y,c:null};
+  }
+  G.markers=[];G.dice=null;G.used=[0,0];G.sel=null;G.trail=null;G.pending=false;G.popup=null;
+  G.round++;G.rt0=G.stats.turns;G.cur=next;G.sub='';
+  log(`— Round ${G.round}: ${tn(next)} goes first —`);
+}
+async function roundBreak(e){
+  const conceded=3-e.team;
+  UI.popup={type:'round',team:e.team,why:e.why};
+  await input('',[{id:'ok',label:`Start round ${G.round+1}`,k:'pri'}]);
+  UI.popup=null;
+  resetRound(conceded);
+}
 function win(team,why,mvp){
   if(mvp==null)mvp=teamChars(team).slice().sort((a,b)=>(b.tags||0)-(a.tags||0))[0].id;
   G.over={team,why,mvp};sfx('win');evt(why,team);log(`${tn(team)} wins: ${why}`);throw new GameOver();
@@ -912,8 +957,14 @@ async function takeTurn(){
   await finishTurn();
 }
 async function run(){
-  try{for(;;)await takeTurn();}
-  catch(e){if(!(e instanceof GameOver))throw e;UI.prompt='';UI.buttons=[];UI.cells=null;render();}
+  for(;;){
+    try{await takeTurn();}
+    catch(e){
+      if(e instanceof RoundOver){UI.popup=null;G.dice=null;await roundBreak(e);continue;}
+      if(e instanceof GameOver){UI.prompt='';UI.buttons=[];UI.cells=null;render();return;}
+      throw e;
+    }
+  }
 }
 
 // ---------- setup / draft ----------
@@ -998,7 +1049,7 @@ function aiOpp(t,myC,thC,ecar){
 function aiEval(t){
   const o=3-t,L=aiLvl(t);
   const W=AWc=L.v2?AW:AW0;
-  const im=W.imp?Math.max(0,(G.stats?G.stats.turns:0)-25)*W.imp:0;
+  const im=W.imp?Math.max(0,(G.stats?G.stats.turns-(G.rt0||0):0)-25)*W.imp:0;
   const myC=teamChars(t).filter(alive),thC=teamChars(o).filter(alive);
   const ef=G.flags[o],mf=G.flags[t];
   let s=(teamChars(o).length-thC.length)*W.jail-(teamChars(t).length-myC.length)*W.jail;
@@ -1322,7 +1373,8 @@ function aiHook(){
   if(window.__fast||!G.ai||G.over)return;
   const t=aiActor();if(!G.ai[t])return;
   const iid=UI.iid;
-  const go=()=>{if(UI.iid!==iid||!UI.resolve||G.over)return;if(UI.menu||UI.how){setTimeout(go,500);return;}try{aiAnswer(t);}catch(e){console.error(e);aiFallback();}};
+  const go=()=>{if(UI.iid!==iid||!UI.resolve||G.over)return;
+    if(UI.popup&&UI.popup.type==='round'&&!(G.ai[1]&&G.ai[2]))return;if(UI.menu||UI.how){setTimeout(go,500);return;}try{aiAnswer(t);}catch(e){console.error(e);aiFallback();}};
   setTimeout(go,UI.popup?1200:520+Math.random()*420);
 }
 const AI_RANK=['Bo','Maya','Danny','Gio','Kit','Tessa','Brody','Shay','Zoe','Cal','Hudson','Clyde','Dex','Scarlett','Mia','Gabe','Chloe','Sam','Kai','Rosie'];
@@ -1426,7 +1478,7 @@ function howHTML(){
     ['Terrain','#B4C2D8','Mud ends your move. A slide pushes you 2 more squares. Dotted squares are safe from tags. The flag carrier moves 1 less on each die.']
   ].map(([t,c,d])=>`<div class="hrule"><b style="color:${c}">${t}</b><span>${d}</span></div>`).join('');
   return `<div class="ov" data-act="howclose"><div class="howp" role="dialog" aria-label="How to play"><div class="hh"><h2>How to play</h2><button class="btn pri" style="min-height:52px;padding:0 32px;font-size:16px" data-act="howclose">Back to the game</button></div>
-  <div class="goal"><b>The goal</b><span>Grab the other team's flag and carry it across the midline onto your own side. You also win if all 6 enemy characters are in jail.</span></div>
+  <div class="goal"><b>The goal</b><span>Grab the other team's flag and carry it across the midline onto your own side to score a point. Jailing all 6 enemies also scores a point. Everything resets after each point, and the first team to 2 points wins.</span></div>
   <div class="hsteps">${steps}</div><div class="hrules">${rules}</div></div></div>`;
 }
 function screenTitle(){
@@ -1493,12 +1545,17 @@ function jailPopHTML(p){
   const rest=UI.buttons.filter(b=>!/^f\d+$/.test(b.id)).map(btnH).join('');
   return `<div class="drawer"><div class="dt">In jail</div><span class="lbl">${esc(tn(p.c.team))} · ${p.caps.length} of 6</span>${caps}${rest}</div>`;
 }
+function roundPopHTML(p){
+  const t=p.team,o=3-t;
+  return `<div class="ov"><div class="pop rpop"><span class="lbl">Round ${G.round} over</span><span class="rt" style="color:${TC[t]}">Point to ${esc(tn(t))}</span><span class="rs">${esc(tn(1))} ${G.score[1]} – ${G.score[2]} ${esc(tn(2))}</span><span class="rw">${esc(p.why)}.</span><span class="rw">First to 2 points wins. ${esc(tn(o))} goes first in round ${G.round+1}.</span>${UI.buttons.map(btnH).join('')}</div></div>`;
+}
 function popupHTML(){
   const p=UI.popup;if(!p)return '';
   if(p.type==='save')return savePopHTML(p);
   if(p.type==='spec')return specPopHTML(p);
   if(p.type==='cap')return capPopHTML(p);
   if(p.type==='jail')return jailPopHTML(p);
+  if(p.type==='round')return roundPopHTML(p);
   return '';
 }
 function overHTML(){
@@ -1523,7 +1580,7 @@ function menuHTML(){
 }
 function sumText(){
   const o=G.over,st=G.stats,mins=Math.max(1,Math.round((Date.now()-st.t0)/60000));
-  const L=[`Flag Fight: ${tn(o.team)} won in ${st.turns} turns (${mins} min). ${o.why}`,`Tag attempts ${st.att}: ${st.saved} saved, ${st.jailed} jailed. Flag drops ${st.drops}. Tokens spent: ${tn(1)} ${st.tok[1]}, ${tn(2)} ${st.tok[2]}.`];
+  const L=[`Flag Fight: ${tn(o.team)} won ${G.score[o.team]}-${G.score[3-o.team]} in ${st.turns} turns (${mins} min). ${o.why}`,`Tag attempts ${st.att}: ${st.saved} saved, ${st.jailed} jailed. Flag drops ${st.drops}. Tokens spent: ${tn(1)} ${st.tok[1]}, ${tn(2)} ${st.tok[2]}.`];
   for(const c of G.chars){const p=st.per[c.id]||{};L.push(`${tn(c.team)} ${c.name}: tags ${p.tags||0}, jailed ${p.jail||0}, saves ${p.saves||0}/${p.att||0}`);}
   return L.join('\n');
 }
@@ -1536,7 +1593,7 @@ function summaryHTML(){
   const tiles=[[st.turns,'Turns',`About ${mins} minute${mins>1?'s':''}`,'#EEF2F8'],[st.att,'Tag attempts',`${st.saved} saved, ${st.jailed} jailed`,'#FFD54A'],[pct+'%','Saves made','Tags that did not stick','#8FD08A'],[st.drops,'Flag drops','Carrier tagged','#FF6459'],[st.tok[1]+st.tok[2],'Tokens spent',`${tn(1)} ${st.tok[1]}, ${tn(2)} ${st.tok[2]}`,'#5B94FF']].map(([v,l,d,c])=>`<div class="stile"><span style="color:${c}">${v}</span><b>${l}</b><small>${esc(d)}</small></div>`).join('');
   const ev=st.events.slice(-9).map(e=>`<div class="sev"><span class="sturn">Turn ${e.t}</span><i style="background:${TC[e.team]||'#9FB0C8'}"></i><span>${esc(e.text)}</span></div>`).join('')||'<div class="sev"><span>No events recorded.</span></div>';
   const rows=G.chars.map(c=>{const p=st.per[c.id]||{};return `<span class="srow"><i style="background:${TC[c.team]}">${numOf(c.name)}</i>${esc(c.name)}</span><span>${p.tags||0}</span><span>${p.jail||0}</span><span>${p.saves||0}/${p.att||0}</span>`;}).join('');
-  return `<div class="sumscreen"><div class="wrap" style="max-width:1320px"><div class="sumhead"><div><div class="lbl">Game summary · for playtest notes</div><h1><span style="color:${TC[o.team]}">${esc(tn(o.team))}</span> won in ${st.turns} turns</h1></div><button class="btn g3" data-act="sumcopy">Copy as text</button><button class="btn g3" data-act="sumclose">Back</button><button class="btn pri big2" onclick="G=null;newGame();render()">Play again</button></div>
+  return `<div class="sumscreen"><div class="wrap" style="max-width:1320px"><div class="sumhead"><div><div class="lbl">Game summary · for playtest notes</div><h1><span style="color:${TC[o.team]}">${esc(tn(o.team))}</span> won ${G.score[o.team]}–${G.score[3-o.team]} in ${st.turns} turns</h1></div><button class="btn g3" data-act="sumcopy">Copy as text</button><button class="btn g3" data-act="sumclose">Back</button><button class="btn pri big2" onclick="G=null;newGame();render()">Play again</button></div>
   <div class="stiles">${tiles}</div><div class="s2"><div class="spanel"><h3>What happened</h3>${ev}</div><div class="spanel"><h3>Squads</h3><div class="stable"><span class="sh">Character</span><span class="sh">Tags</span><span class="sh">Jailed</span><span class="sh">Saves</span>${rows}</div></div></div></div></div>`;
 }
 function screenPlay(){
@@ -1551,7 +1608,7 @@ function screenPlay(){
   const dock=`<div class="dock ${UI.resolve&&!lk?'live':''}"><div class="dl">${left}</div><div class="dr"><div class="dprompt">${esc(UI.prompt||(G.over?'Game over':'...'))}</div>${lk?'<span class="dnote">The computer picks its own move. Its choices are not highlighted and your buttons stay locked until it is done.</span>':''}${tilesB.length?`<div class="tiles">${tilesB.map(b=>tileH(lockB(b))).join('')}</div>`:''}<div class="dbtns">${plainB.map(b=>btnH(lockB(b))).join('')}</div></div></div>`;
   const logp=`<div class="logp"><h3>Game log</h3><div class="logs">${G.log.map(l=>`<div>${esc(l)}</div>`).join('')}</div></div>`;
   const legend='<div class="legend"><span>Safe squares have a dot</span><span>Mud stops you</span><span>» Slide +2 squares</span><span>Ringed squares are starting squares</span><span>Gray squares are jail</span></div>';
-  const bar=`<div class="tbar">${menuBtn()}${chipH(t)}${G.ai&&G.ai[t]?`<span class="lvl">${esc(G.ai[t])}</span>`:''}<span class="lbl">${esc(G.sub||'')}</span>${lk?'<span class="lbl think" style="color:var(--gold)">Computer is thinking<i></i><i></i><i></i></span>':''}<span class="grow"></span>${dice}</div>`;
+  const bar=`<div class="tbar">${menuBtn()}${chipH(t)}${G.ai&&G.ai[t]?`<span class="lvl">${esc(G.ai[t])}</span>`:''}<span class="score"><b style="color:${TC[1]}">${esc(tn(1))} ${G.score[1]}</b> – <b style="color:${TC[2]}">${G.score[2]} ${esc(tn(2))}</b></span><span class="lbl">Round ${G.round} · ${esc(G.sub||'')}</span>${lk?'<span class="lbl think" style="color:var(--gold)">Computer is thinking<i></i><i></i><i></i></span>':''}<span class="grow"></span>${dice}</div>`;
   let body;
   if(narrow){
     const tab=UI.tab||'blue';
@@ -1609,6 +1666,7 @@ document.addEventListener('click',e=>{
 });
 newGame();
 applySet();
+loadArt();
 render();
 </script>
 </body>
