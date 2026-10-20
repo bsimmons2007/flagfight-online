@@ -236,6 +236,69 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-o
 @keyframes cshadow{0%{transform:scale(1)}45%{transform:scale(.45);opacity:.4}100%{transform:scale(1)}}
 .coincap{font-family:var(--disp);font-weight:800;font-size:34px}
 select{min-height:48px;border-radius:12px;background:var(--bg);color:var(--text);border:2px solid var(--line);padding:0 12px;font-size:16px;font-family:inherit;width:100%}
+
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.segb{min-height:64px;border-radius:12px;background:var(--bg);color:var(--text);border:2px solid var(--line);padding:6px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.segb b{font-size:14px}.segb span{font-size:11px;color:var(--muted)}
+.segb.on{background:#2A2410;border-color:var(--gold)}.segb.on span{color:#D9C98A}
+.segnote{background:#11182A;border:2px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.4;color:var(--soft)}
+.segnote b{color:var(--gold)}
+.mbtn{width:48px;height:48px;border-radius:12px;background:var(--panel2);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex:none}
+.mbtn:hover{border-color:var(--gold)}
+.lvl{background:#11182A;border:2px solid var(--gold);color:var(--gold);font-weight:800;border-radius:999px;padding:1px 12px;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.think i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-left:3px;animation:dots 1s infinite}
+.think i:nth-child(2){animation-delay:.2s}.think i:nth-child(3){animation-delay:.4s}
+@keyframes dots{0%,100%{opacity:.25}50%{opacity:1}}
+.dnote{color:var(--soft);font-size:13px;line-height:1.4}
+.c.tf::before,.c.tt::before{content:'';position:absolute;inset:1px;border-radius:4px;z-index:1;pointer-events:none}
+.c.tf::before{border:2px dashed var(--gold);opacity:.8}.c.tt::before{border:2px solid var(--gold);opacity:.55}
+.tabs{display:flex;gap:8px;width:100%;max-width:960px;margin-top:6px}
+.tabb{flex:1;min-height:52px;border-radius:12px 12px 0 0;background:var(--bg);color:var(--muted);border:2px solid #2A3850;border-bottom:none;font-size:15px;font-weight:800}
+.tabb.on{background:var(--panel);color:var(--text)}.tabb.on.t1{border-color:var(--blue)}.tabb.on.t2{border-color:var(--red)}.tabb.on.t0{border-color:var(--line)}
+.tpane{width:100%;max-width:960px;background:var(--panel);border-radius:0 0 14px 14px;padding:14px;margin-top:-12px;border:2px solid var(--line);border-top:none}
+.tpane.t1{border-color:var(--blue)}.tpane.t2{border-color:var(--red)}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+@media(max-width:1100px){:root{--cell:clamp(12px,calc((100vw - 56px)/30.7),30px)}.tbar{flex-wrap:wrap}}
+.menup{position:relative;width:min(560px,100%);background:var(--panel);border:3px solid var(--gold);border-radius:22px;padding:26px;display:flex;flex-direction:column;gap:14px}
+.mh{display:flex;align-items:center;gap:12px}.mh h2{font-family:var(--disp);font-weight:800;font-size:32px;flex:1}
+.big2{min-height:58px;border-radius:14px;font-size:17px;font-weight:800}
+.mb2{min-height:52px;border-radius:12px;font-size:15px;text-align:left;padding:0 18px}
+.mbox{display:flex;flex-direction:column;gap:8px;background:#11182A;border:2px solid #2A3850;border-radius:14px;padding:12px 14px}
+.mrow{display:flex;align-items:center;gap:12px;min-height:40px}.mrow>div:first-child{flex:1}.mrow b{display:block;font-weight:700}.mrow span{color:var(--muted);font-size:12px}
+.swt{width:52px;height:30px;border-radius:999px;background:var(--panel2);border:2px solid var(--line);position:relative;flex:none;padding:0}
+.swt i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#F6F3EA;transition:left .15s}
+.swt.on{background:var(--green);border-color:var(--greenl)}.swt.on i{left:27px}
+.seg2{display:flex;gap:0;border:2px solid var(--line);border-radius:10px;overflow:hidden}
+.seg2 button{background:var(--bg);color:var(--text);border:none;padding:8px 14px;font-weight:700;font-size:13px}
+.seg2 button.on{background:var(--gold);color:var(--ink)}
+.mdanger{display:flex;flex-direction:column;gap:8px;background:#2A1416;border:2px solid #7A2F33;border-radius:14px;padding:12px 14px}
+.mdanger b{color:#FF8C84}.mdanger span{color:#D8B8B6;font-size:13px;line-height:1.4}
+.mdb{display:flex;gap:8px}.mdb .btn{flex:1;min-height:46px}
+.btn.red{background:var(--red);color:var(--night);border:2px solid var(--night);font-weight:800}
+.sumscreen{position:fixed;inset:0;z-index:50;overflow:auto;background:var(--bg)}
+.sumscreen .wrap{padding-top:40px}
+.sumhead{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.sumhead>div{flex:1;min-width:260px}.sumhead h1{font-family:var(--disp);font-weight:800;font-size:clamp(34px,4.5vw,52px);line-height:1}
+.btn.g3{background:transparent;border:2px solid var(--line);min-height:52px;padding:0 26px;font-size:15px}
+.stiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:22px}
+.stile{background:var(--panel);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:4px}
+.stile span{font-family:var(--disp);font-weight:800;font-size:44px;line-height:1}.stile b{font-weight:700}.stile small{color:var(--muted);font-size:12px}
+.s2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:900px){.s2{grid-template-columns:1fr}}
+.spanel{background:var(--panel);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px}
+.spanel h3{font-family:var(--disp);font-weight:800;font-size:22px}
+.sev{display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #25324A;font-size:14px}
+.sev i{width:10px;height:10px;border-radius:50%;flex:none}.sturn{width:58px;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase;flex:none}
+.stable{display:grid;grid-template-columns:1.4fr .7fr .7fr .7fr;gap:6px 10px;font-size:13px;align-items:center}
+.sh{color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.srow{display:flex;align-items:center;gap:8px;font-weight:700}
+.srow i{width:24px;height:24px;border-radius:50%;color:var(--night);font-size:10px;font-style:normal;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+html[data-rm="1"] *{animation:none!important;transition:none!important}
+body[data-board="campus"] #board{background:#0B0714;border-color:#0B0714}
+body[data-board="campus"] .c.l1{background:#311F5C}body[data-board="campus"] .c.l1.k{background:#2B1B52}
+body[data-board="campus"] .c.l2{background:#523A1B}body[data-board="campus"] .c.l2.k{background:#4A3216}
+body[data-board="campus"] .c.slide{background:#6B4BD0}body[data-board="campus"] .c.jail{background:#4B4560}
+body[data-board="campus"] .c.x14::after{background:#F4E9C9}
 @media(prefers-reduced-motion:reduce){*{animation-duration:0s!important;transition-duration:0s!important}}
 </style>
 </head>
@@ -294,11 +357,40 @@ const STARTY=[1,3,6,8,11,13], START={1:[],2:[]};
 for(const y of STARTY){START[1].push({x:8,y});const [a,b]=rot(8,y);START[2].push({x:a,y:b});}
 const baseCells=t=>{const o=[];for(let x=0;x<W;x++)for(let y=0;y<H;y++)if(SAFE[y][x]&&terr(x)===t&&dist({x,y},HOME[t])<=3&&(t===1?x<=2:x>=27))o.push({x,y});return o.sort((a,b)=>dist(a,HOME[t])-dist(b,HOME[t])||a.y-b.y);};
 
+// ---------- settings and sound ----------
+const SET=(()=>{let o={sound:true,rm:false,odds:false,board:'forest'};try{o.rm=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);Object.assign(o,JSON.parse(localStorage.getItem('flagfight.settings')||'{}'));}catch(e){}return o;})();
+function applySet(){document.documentElement.dataset.rm=SET.rm?'1':'';if(document.body)document.body.dataset.board=SET.board;}
+function saveSet(){try{localStorage.setItem('flagfight.settings',JSON.stringify(SET));}catch(e){}applySet();}
+let AC=null;
+function sfx(n){
+  if(!SET.sound||window.__fast)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==='suspended')AC.resume();
+    const t=AC.currentTime;
+    const tone=(f,d,type,v,dt,f2)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t+(dt||0));if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+(dt||0)+d);g.gain.setValueAtTime(v||.1,t+(dt||0));g.gain.exponentialRampToValueAtTime(.0001,t+(dt||0)+d);o.connect(g);g.connect(AC.destination);o.start(t+(dt||0));o.stop(t+(dt||0)+d+.02);};
+    if(n==='dice')for(let i=0;i<8;i++)tone(180+Math.random()*240,.05,'square',.045,i*.075);
+    else if(n==='tag')tone(150,.2,'sawtooth',.13,0,55);
+    else if(n==='save'){tone(520,.1,'triangle',.1);tone(780,.16,'triangle',.1,.09);}
+    else if(n==='jail'){tone(330,.12,'square',.07);tone(220,.22,'square',.07,.1);}
+    else if(n==='flag')[523,659,784].forEach((f,i)=>tone(f,.15,'triangle',.1,i*.09));
+    else if(n==='win')[523,659,784,1047].forEach((f,i)=>tone(f,.24,'triangle',.12,i*.12));
+    else if(n==='coin')tone(900,.6,'sine',.06,0,300);
+  }catch(e){}
+}
+function newStats(){return {turns:0,att:0,saved:0,jailed:0,drops:0,tok:{1:0,2:0},events:[],per:{},t0:Date.now()};}
+function trackedTokens(){
+  const v={1:2,2:2},o={};
+  for(const k of [1,2])Object.defineProperty(o,k,{enumerable:true,get:()=>v[k],set:n=>{if(n<v[k]&&typeof G!=='undefined'&&G&&G.stats)G.stats.tok[k]+=v[k]-n;v[k]=n;}});
+  return o;
+}
+function evt(text,team){if(G&&G.stats&&G.stats.events.length<80)G.stats.events.push({t:G.stats.turns,team,text});}
+
 // ---------- state ----------
 let G, UI={prompt:'',buttons:[],cells:null,resolve:null,banner:''};
 function newGame(){
   const rules=G?G.rules:{stack:true},names=G?G.names:null,ai=G?G.ai:null;
-  G={phase:'setup',rules,chars:[],tokens:{1:2,2:2},flags:{1:{x:3,y:7,c:null},2:{x:26,y:7,c:null}},markers:[],cur:1,log:[],over:null,dice:null,used:[0,0],picks:[],drafter:0,order:[],pending:false,coin:null,names,ai,sel:null,sub:''};
+  G={phase:'setup',rules,chars:[],tokens:trackedTokens(),flags:{1:{x:3,y:7,c:null},2:{x:26,y:7,c:null}},markers:[],cur:1,log:[],over:null,dice:null,used:[0,0],picks:[],drafter:0,order:[],pending:false,coin:null,names,ai,sel:null,sub:'',stats:newStats(),trail:null};
 }
 const ch=id=>G.chars[id];
 const teamChars=t=>G.chars.filter(c=>c.team===t);
@@ -322,18 +414,17 @@ function answer(v){const r=UI.resolve;if(!r)return;UI.resolve=null;UI.cells=null
 const ask=async(prompt,btns)=>(await input(prompt,btns)).btn;
 async function flash(text,ms=1100){UI.banner=text;render();await sleep(ms);UI.banner='';render();}
 async function rollDice(){
-  G.aiRR=false;
-  UI.rolling=[1,1];
-  for(let i=0;i<9;i++){G.dice=[d6(),d6()];G.used=[0,0];render();await sleep(80);}
-  UI.rolling=null;UI.landed=[1,1];
+  G.aiRR=false;sfx('dice');
+  if(!SET.rm){UI.rolling=[1,1];for(let i=0;i<9;i++){G.dice=[d6(),d6()];G.used=[0,0];render();await sleep(80);}}
+  UI.rolling=null;UI.landed=SET.rm?null:[1,1];
   G.dice=[d6(),d6()];G.used=[0,0];log(`${tn(G.cur)} rolls ${G.dice[0]} and ${G.dice[1]}`);render();UI.landed=null;
 }
 const mayaFree=()=>!!G.mayaFree&&teamChars(G.cur).some(c=>c.name==='Maya'&&alive(c));
 async function rerollDie(i){
   if(mayaFree())G.mayaFree=false;else G.tokens[G.cur]--;
-  UI.rolling=[0,0];UI.rolling[i]=1;
-  for(let k=0;k<6;k++){G.dice[i]=d6();render();await sleep(80);}
-  UI.rolling=null;UI.landed=[0,0];UI.landed[i]=1;
+  sfx('dice');
+  if(!SET.rm){UI.rolling=[0,0];UI.rolling[i]=1;for(let k=0;k<6;k++){G.dice[i]=d6();render();await sleep(80);}}
+  UI.rolling=null;UI.landed=SET.rm?null:[0,0];if(UI.landed)UI.landed[i]=1;
   G.dice[i]=d6();log(`${tn(G.cur)} re-rolls: die is now ${G.dice[i]}`);render();UI.landed=null;
 }
 
@@ -419,6 +510,7 @@ function swapPos(a,b){
   checkWin();
 }
 function applyMove(c,r){
+  G.trail={x0:c.x,y0:c.y,x1:r.x,y1:r.y};
   placeChar(c,r.x,r.y);
   if(r.slip){G.markers=G.markers.filter(m=>m!==r.slip);log(`${c.name} slips on a banana and loses the action!`);return true;}
   return false;
@@ -438,7 +530,7 @@ function homeReached(k){
 }
 function win(team,why,mvp){
   if(mvp==null)mvp=teamChars(team).slice().sort((a,b)=>(b.tags||0)-(a.tags||0))[0].id;
-  G.over={team,why,mvp};log(`${tn(team)} wins: ${why}`);throw new GameOver();
+  G.over={team,why,mvp};sfx('win');evt(why,team);log(`${tn(team)} wins: ${why}`);throw new GameOver();
 }
 
 // ---------- tagging ----------
@@ -471,8 +563,9 @@ function saveMod(t,tagger){
 }
 function sendToJail(target,tagger){
   const f=G.flags[3-target.team];
-  if(f.c===target.id){f.c=null;f.x=target.x;f.y=target.y;log(`${target.name} drops the flag!`);}
+  if(f.c===target.id){f.c=null;f.x=target.x;f.y=target.y;log(`${target.name} drops the flag!`);G.stats.drops++;evt(`${target.name} drops the flag`,target.team);}
   target.jail=true;target.x=target.y=null;tagger.tags=(tagger.tags||0)+1;
+  G.stats.jailed++;const pj=G.stats.per[target.id],pt=G.stats.per[tagger.id];if(pj)pj.jail++;if(pt)pt.tags++;sfx('jail');evt(`${tagger.name} tags ${target.name}`,tagger.team);
   addTokens(tagger.team,1+(tagger.name==='Tessa'?1:0));
   log(`${tagger.name} tags ${target.name}: to jail! (+token)`);
   checkWin();
@@ -486,9 +579,12 @@ async function savePop(p,buttons,autoMs){
   return r.btn;
 }
 async function rollAnim(b){
+  if(SET.rm){UI.popup={type:'save',...b,stage:'roll',val:d6()};render();return;}
+  sfx('dice');
   for(let i=0;i<13;i++){UI.popup={type:'save',...b,stage:'roll',val:d6()};render();await sleep(90+i*24);}
 }
 async function tagFlow(tagger,target){
+  G.stats.att++;
   const gabe=teamChars(target.team).find(g=>g.name==='Gabe'&&alive(g)&&g!==target&&dist(g,target)<=2);
   const toks=t=>`${tn(t)} has ${G.tokens[t]} token${G.tokens[t]===1?'':'s'}.`;
   if(gabe&&G.tokens[target.team]>=1){
@@ -499,7 +595,7 @@ async function tagFlow(tagger,target){
   const d=dist(tagger,target),need=target.save+(d<=1?1:0),mod=saveMod(target,tagger);
   let r=d6(),ok=r+mod>=need;
   await rollAnim({tagger,target,need,mod});
-  let st={tagger,target,need,mod,stage:'result',val:r,ok};
+  let st={tagger,target,need,mod,stage:'result',val:r,ok};sfx(ok?'save':'tag');
   UI.popup={type:'save',...st};render();await sleep(1200);
   const mia=teamChars(target.team).find(m=>m.name==='Mia'&&alive(m)&&m!==target&&dist(m,target)<=2);
   if(!ok&&mia){r=d6();ok=r+mod>=need;log('Mia: First Aid re-roll');st={...st,val:r,ok};await rollAnim({tagger,target,need,mod,msg:'Mia: First Aid re-roll'});UI.popup={type:'save',...st,msg:'Mia: First Aid re-roll'};render();await sleep(1200);}
@@ -517,6 +613,7 @@ async function tagFlow(tagger,target){
   }
   await savePop({...st,msg:ok?`${target.name} saved.`:`${target.name} is tagged and goes to jail.`},[{id:"ok",label:"Continue",k:"pri"}],2200);
   UI.popup=null;
+  {const pp=G.stats.per[target.id];if(pp)pp.att++;if(ok){G.stats.saved++;if(pp)pp.saves++;}}
   if(ok){log(`${target.name} saves against ${tagger.name}`);return;}
   sendToJail(target,tagger);
 }
@@ -543,7 +640,7 @@ async function freeAction(c,all){
   }
   list.forEach(sendHome);sendHome(c);
   if(c.name==='Chloe')addTokens(c.team,list.length);
-  log(`${c.name} frees ${list.map(o=>o.name).join(', ')}; everyone back to base`);
+  log(`${c.name} frees ${list.map(o=>o.name).join(', ')}; everyone back to base`);evt(`${c.name} frees ${list.length} teammate${list.length>1?'s':''}`,c.team);
   return true;
 }
 
@@ -558,7 +655,7 @@ async function slipPop(c,mk){
   await specPop({label:'Special · Banana Peel',disc:'Slip!',title:'',sub:`${c.name} #${numOf(c.name)} stepped on a banana.`,card:cl,boxes:[{t:`${c.name} #${numOf(c.name)}`,d:'Move ends here and the action is lost',col:TC[c.team]}]});
 }
 async function capPop(c){
-  const opp=3-c.team;
+  const opp=3-c.team;sfx('flag');evt(`${c.name} grabs the ${tn(opp)} flag`,c.team);
   UI.popup={type:'cap',title:'Flag captured!',text:`${c.name} #${numOf(c.name)} has ${tn(opp)}'s flag. Get them back to a starting square.`};
   await input('',[{id:'ok',label:'Continue',k:'pri'}]);
   UI.popup=null;
@@ -801,7 +898,7 @@ async function finishTurn(){
   G.cur=3-t;
 }
 async function takeTurn(){
-  const t=G.cur;
+  const t=G.cur;G.stats.turns++;
   teamChars(t).forEach(c=>c.cheer=false);
   G.mayaFree=true;
   G.markers=G.markers.filter(m=>!(m.type==='wall'&&m.team===t));
@@ -828,12 +925,11 @@ async function run(){
 async function flipCoin(){
   const n1=document.getElementById('n1'),n2=document.getElementById('n2');
   if(n1&&n2)G.names={1:n1.value.trim()||'Blue',2:n2.value.trim()||'Red'};
-  const op=document.getElementById('opp');
-  if(op){G.ai=op.value?{1:null,2:op.value}:null;if(op.value&&G.names[2]==='Red')G.names[2]='Computer';}
+  if(UI.opp!==undefined){G.ai=UI.opp?{1:null,2:UI.opp}:null;if(UI.opp&&G.names[2]==='Red')G.names[2]='Computer';}
   G.drafter=1+rnd(2);
   const A=G.drafter,B=3-A;
   G.order=[A,B,B,A,A,B,B,A,A,B,B,A];
-  UI.coin={end:A===1?1800:1980};render();await sleep(3000);UI.coin=null;
+  if(!SET.rm){sfx('coin');UI.coin={end:A===1?1800:1980};render();await sleep(3000);UI.coin=null;}
   G.phase='toss';render();
 }
 function startDraft(){G.phase='draft';render();}
@@ -856,6 +952,7 @@ function startPlay(){
       G.chars.push({id:G.chars.length,name:r.name,team:seat,save:r.save,x,y,jail:false,frozen:0,skipAct:0,exempt:0,cheer:false,tags:0});
     });
   }
+  G.stats=newStats();G.chars.forEach(c=>{G.stats.per[c.id]={tags:0,jail:0,saves:0,att:0};});
   G.phase='play';G.cur=3-G.drafter;G.sel=null;G.sub='';
   log(`${tn(G.drafter)} drafted first, so ${tn(G.cur)} takes the first turn.`);
   render();run();
@@ -1167,7 +1264,8 @@ function aiHook(){
   if(window.__fast||!G.ai||G.over)return;
   const t=aiActor();if(!G.ai[t])return;
   const iid=UI.iid;
-  setTimeout(()=>{if(UI.iid!==iid||!UI.resolve||G.over)return;try{aiAnswer(t);}catch(e){console.error(e);aiFallback();}},UI.popup?1200:700);
+  const go=()=>{if(UI.iid!==iid||!UI.resolve||G.over)return;if(UI.menu||UI.how){setTimeout(go,500);return;}try{aiAnswer(t);}catch(e){console.error(e);aiFallback();}};
+  setTimeout(go,UI.popup?1200:700);
 }
 const AI_RANK=['Rosie','Zoe','Hudson','Scarlett','Gabe','Danny','Bo','Gio','Kit','Tessa','Shay','Sam','Mia','Cal','Chloe','Kai','Dex','Maya','Clyde','Brody'];
 function aiDraftPick(seat){
@@ -1233,6 +1331,7 @@ function boardHTML(){
     if(isJ)cl.push('jail');
     if(wallAt(x,y))cl.push('wall');
     if(UI.cells&&!aiBusy()&&UI.cells.has(x+','+y))cl.push('hl');
+    if(G.trail){if(G.trail.x0===x&&G.trail.y0===y)cl.push('tf');else if(G.trail.x1===x&&G.trail.y1===y)cl.push('tt');}
     let inner='';
     if(t==='tree')inner=TREE;else if(t==='slide')inner='»';
     if(isJ){const n=teamChars(isJ).filter(c=>c.jail).length;if(n&&x===JAIL[isJ][0].x&&y===JAIL[isJ][0].y)inner=`<span class="cnt">${n}</span>`;}
@@ -1272,12 +1371,15 @@ function howHTML(){
 }
 function screenTitle(){
   G.rules=G.rules||{stack:true};
+  if(UI.opp===undefined)UI.opp=(G.ai&&G.ai[2])||'';
   const prev=boardHTML();
   return `<div class="title"><div class="bgb"><div id="board">${prev}</div></div><div class="wash"></div>
   <div class="big"><h1><span style="color:var(--blue)">Flag</span> <span style="color:var(--red)">Fight</span></h1><div class="tag">The playground game, with powers.</div></div>
   <div class="newgame"><div class="nt">New game</div>
-   <div style="display:flex;flex-direction:column;gap:8px"><label for="n1">Player 1 (Blue, left)</label><input type="text" id="n1" value="${esc(tn(1))}" style="border-color:var(--blue)" maxlength="14"><label for="n2">Player 2 (Red, right)</label><input type="text" id="n2" value="${esc(tn(2))}" style="border-color:var(--red)" maxlength="14"></div>
-   <div style="display:flex;flex-direction:column;gap:8px"><label for="opp">Player 2 is</label><select id="opp">${[['','A second player'],['easy','Computer: easy'],['normal','Computer: normal'],['hard','Computer: hard']].map(([v,l])=>`<option value="${v}" ${(G.ai&&G.ai[2]||'')===v?'selected':''}>${l}</option>`).join('')}</select></div>
+   <div style="display:flex;flex-direction:column;gap:8px"><label for="n1">Player 1 (Blue, left) name</label><input type="text" id="n1" value="${esc(tn(1))}" style="border-color:var(--blue)" maxlength="14"><label for="n2">Player 2 name</label><input type="text" id="n2" value="${esc(tn(2))}" style="border-color:var(--red)" maxlength="14"></div>
+   <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:13px;color:var(--muted)">Player 2 (Red, right) is</span>
+   <div class="seg">${[['','Person','Same screen'],['easy','Easy','Computer'],['normal','Normal','Computer'],['hard','Hard','Computer']].map(([v,t,d])=>`<button class="segb ${UI.opp===v?'on':''}" data-act="opp" data-v="${v}"><b>${t}</b><span>${d}</span></button>`).join('')}</div>
+   <div class="segnote">${({'':'Two people share this screen.',easy:'<b>Easy</b> plays fast and makes mistakes. A friendly first opponent.',normal:'<b>Normal</b> plays sensibly and uses its powers, but misses some tricks.',hard:'<b>Hard</b> plans its flag runs and tags carefully. It is tough to beat.'})[UI.opp]||''}</div></div>
    <label class="chk"><input type="checkbox" id="rstack" ${G.rules.stack?'checked':''}> Save bonuses stack. Off means only the biggest bonus counts.</label>
    <button class="btn gold" onclick="G.rules.stack=document.getElementById('rstack').checked;flipCoin()">Flip the coin</button>
    <button class="btn ghost" data-act="howopen">How to play</button></div></div>${UI.how?howHTML():''}`;
@@ -1297,11 +1399,11 @@ function screenDraft(){
   const slots=t=>{const l=G.picks.filter(p=>p.seat===t);return Array.from({length:6},(_,i)=>l[i]?`<span class="slot full" style="background:${TC[t]}">${esc(ROSTER[l[i].i].name.slice(0,2))}</span>`:'<span class="slot"></span>').join('');};
   const cnt=t=>G.picks.filter(p=>p.seat===t).length;
   const cards=ROSTER.map((r,i)=>{const p=G.picks.find(p=>p.i===i);return `<div>${pennant(r,{team:p?p.seat:0,size:'sm'})}${p?`<div class="took t${p.seat}">Drafted by ${esc(tn(p.seat))}</div>`:`<button class="dbtn t${seat}" onclick="pickDraft(${i})">Draft for ${esc(tn(seat))}</button>`}</div>`;}).join('');
-  return `<div class="wrap"><div class="dhead"><div><div class="lbl">Snake draft · ${esc(tn(G.drafter))} won the flip</div><h1>Draft your squad</h1></div><div class="order">${order}</div></div>
+  return `<div class="wrap"><div class="dhead"><div><div class="lbl">Snake draft · ${esc(tn(G.drafter))} won the flip</div><h1>Draft your squad</h1></div><div style="display:flex;gap:14px;align-items:center"><div class="order">${order}</div>${menuBtn()}</div></div>
   <div class="drow"><div class="slotp"><div style="display:flex;align-items:center;gap:10px">${chipH(1)}<span class="lbl" style="text-transform:none;letter-spacing:0;font-size:13px">${cnt(1)} of 6 drafted</span></div><div class="slots">${slots(1)}</div></div>
   <div class="pickp">${chipH(seat)}<div class="big">Pick ${run} more character${run>1?'s':''}</div><span style="color:#D9C98A;font-size:13px">${next?`Then ${esc(tn(next))} picks ${run2}.`:'Last pick.'}</span></div>
   <div class="slotp r"><div style="display:flex;align-items:center;gap:10px"><span class="lbl" style="text-transform:none;letter-spacing:0;font-size:13px">${cnt(2)} of 6 drafted</span>${chipH(2)}</div><div class="slots">${slots(2)}</div></div></div>
-  <div class="pool">${cards}</div></div>`;
+  <div class="pool">${cards}</div></div>${UI.menu?menuHTML():''}${UI.how?howHTML():''}`;
 }
 function savePopHTML(p){
   const thr=Math.max(1,p.need-p.mod);
@@ -1311,7 +1413,7 @@ function savePopHTML(p){
   const btns=UI.buttons.map(btnH).join('');
   return `<div class="ov"><div class="pop"><div class="ph">${chipH(p.tagger.team)}<span class="pt">${esc(p.tagger.name)} tags ${esc(p.target.name)}</span><span style="color:var(--muted);font-size:14px;flex:1">${esc(tn(p.target.team))} rolls a Saving Throw</span></div>
   <div class="pgrid"><div>${pcard(p.tagger,{size:'sm'})}</div>
-  <div class="pc3"><span class="lbl">${esc(p.target.name)} saves on ${thr>6?'a miracle':thr+' or more'}</span>${die}<div style="width:100%"><div class="meter">${meter}</div><div class="mlbl"><span>Tagged</span><span>${p.stage==='result'||p.stage==='roll'?'Rolled '+p.val:''}</span><span>Saved</span></div></div>${stamp}</div>
+  <div class="pc3"><span class="lbl">${esc(p.target.name)} saves on ${thr>6?'a miracle':thr+' or more'}${SET.odds?` · ${Math.max(0,Math.min(100,Math.round((7-thr)/6*100)))}% to save`:''}</span>${die}<div style="width:100%"><div class="meter">${meter}</div><div class="mlbl"><span>Tagged</span><span>${p.stage==='result'||p.stage==='roll'?'Rolled '+p.val:''}</span><span>Saved</span></div></div>${stamp}</div>
   <div>${pcard(p.target,{size:'sm'})}</div></div>
   <div class="pfoot"><span class="msg">${esc(p.msg||'')}</span>${btns}</div></div></div>`;
 }
@@ -1345,25 +1447,65 @@ function overHTML(){
   const mvp=ch(o.mvp);
   const sq=teamChars(t).map(c=>`<div class="sq"><span style="border-color:${c.id===o.mvp?'#FFD54A':'transparent'}">${numOf(c.name)}</span>${esc(c.name)}</div>`).join('');
   return `<div class="over t${t}">${cf}<div class="in"><div class="l"><span class="go">Game over</span><span class="wins">${esc(tn(t))} wins</span><span class="why">${esc(o.why)}</span>
-  <div class="acts"><button class="btn gold" onclick="G=null;newGame();render()">Play again</button><button class="btn g2" onclick="newDraft()">New draft</button></div>
+  <div class="acts"><button class="btn gold" onclick="G=null;newGame();render()">Play again</button><button class="btn g2" onclick="newDraft()">New draft</button><button class="btn g2" data-act="sumopen">Game summary</button></div>
   <div style="margin-top:20px;display:flex;flex-direction:column;gap:10px"><span class="go">The winning squad</span><div class="squad">${sq}</div></div></div>
   <div class="mvp"><span class="bdg">MVP</span>${pcard(mvp,{size:'lg',clamp:false,state:''})}</div></div></div>`;
 }
+const menuBtn=()=>`<button class="mbtn" data-act="menuopen" aria-label="Open the game menu"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#EEF2F8" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>`;
+function menuHTML(){
+  const tog=(k,n,d)=>`<div class="mrow"><div><b>${n}</b><span>${d}</span></div><button class="swt ${SET[k]?'on':''}" role="switch" aria-checked="${SET[k]}" aria-label="${n}" data-set="${k}"><i></i></button></div>`;
+  const camp=SET.board==='campus';
+  return `<div class="ov" data-act="menuclose"><div class="menup" role="dialog" aria-label="Game menu"><div class="mh"><h2>Game paused</h2><span class="lbl">${G.phase==='play'?`Turn ${G.stats.turns} · ${esc(tn(G.cur))}`:'Draft'}</span></div>
+  <button class="btn pri big2" data-act="menuclose">Resume</button><button class="btn mb2" data-act="howopen">How to play</button>
+  <div class="mbox">${tog('sound','Sound','Dice, tags and wins')}${tog('rm','Reduce motion','No tumbling dice or coin flip')}${tog('odds','Show tag odds','Show the chance before a tag lands')}
+  <div class="mrow"><div><b>Board side</b><span>Colors only for now</span></div><div class="seg2"><button class="${camp?'':'on'}" data-set="board" data-v="forest">Forest</button><button class="${camp?'on':''}" data-set="board" data-v="campus">Campus</button></div></div></div>
+  <div class="mdanger"><b>Start over?</b><span>This ends the current game for both players. Nothing is saved.</span><div class="mdb"><button class="btn ghost" data-act="menuclose">Keep playing</button><button class="btn red" data-act="restart">Restart game</button></div></div></div></div>`;
+}
+function sumText(){
+  const o=G.over,st=G.stats,mins=Math.max(1,Math.round((Date.now()-st.t0)/60000));
+  const L=[`Flag Fight: ${tn(o.team)} won in ${st.turns} turns (${mins} min). ${o.why}`,`Tag attempts ${st.att}: ${st.saved} saved, ${st.jailed} jailed. Flag drops ${st.drops}. Tokens spent: ${tn(1)} ${st.tok[1]}, ${tn(2)} ${st.tok[2]}.`];
+  for(const c of G.chars){const p=st.per[c.id]||{};L.push(`${tn(c.team)} ${c.name}: tags ${p.tags||0}, jailed ${p.jail||0}, saves ${p.saves||0}/${p.att||0}`);}
+  return L.join('\n');
+}
+function copySummary(){
+  const t=sumText();
+  try{navigator.clipboard.writeText(t).then(()=>toast('Summary copied'),()=>toast('Copy not allowed here'));}catch(e){toast('Copy not allowed here');}
+}
+function summaryHTML(){
+  const o=G.over,st=G.stats,mins=Math.max(1,Math.round((Date.now()-st.t0)/60000)),pct=st.att?Math.round(100*st.saved/st.att):0;
+  const tiles=[[st.turns,'Turns',`About ${mins} minute${mins>1?'s':''}`,'#EEF2F8'],[st.att,'Tag attempts',`${st.saved} saved, ${st.jailed} jailed`,'#FFD54A'],[pct+'%','Saves made','Tags that did not stick','#8FD08A'],[st.drops,'Flag drops','Carrier tagged','#FF6459'],[st.tok[1]+st.tok[2],'Tokens spent',`${tn(1)} ${st.tok[1]}, ${tn(2)} ${st.tok[2]}`,'#5B94FF']].map(([v,l,d,c])=>`<div class="stile"><span style="color:${c}">${v}</span><b>${l}</b><small>${esc(d)}</small></div>`).join('');
+  const ev=st.events.slice(-9).map(e=>`<div class="sev"><span class="sturn">Turn ${e.t}</span><i style="background:${TC[e.team]||'#9FB0C8'}"></i><span>${esc(e.text)}</span></div>`).join('')||'<div class="sev"><span>No events recorded.</span></div>';
+  const rows=G.chars.map(c=>{const p=st.per[c.id]||{};return `<span class="srow"><i style="background:${TC[c.team]}">${numOf(c.name)}</i>${esc(c.name)}</span><span>${p.tags||0}</span><span>${p.jail||0}</span><span>${p.saves||0}/${p.att||0}</span>`;}).join('');
+  return `<div class="sumscreen"><div class="wrap" style="max-width:1320px"><div class="sumhead"><div><div class="lbl">Game summary · for playtest notes</div><h1><span style="color:${TC[o.team]}">${esc(tn(o.team))}</span> won in ${st.turns} turns</h1></div><button class="btn g3" data-act="sumcopy">Copy as text</button><button class="btn g3" data-act="sumclose">Back</button><button class="btn pri big2" onclick="G=null;newGame();render()">Play again</button></div>
+  <div class="stiles">${tiles}</div><div class="s2"><div class="spanel"><h3>What happened</h3>${ev}</div><div class="spanel"><h3>Squads</h3><div class="stable"><span class="sh">Character</span><span class="sh">Tags</span><span class="sh">Jailed</span><span class="sh">Saves</span>${rows}</div></div></div></div></div>`;
+}
 function screenPlay(){
-  const t=G.cur;
+  const t=G.cur,narrow=window.innerWidth<=1100,lk=aiBusy();
   const dice=G.dice?`<div class="dicerow">${G.dice.map((v,i)=>`<div class="die sm ${G.used[i]?'used':''} ${UI.rolling&&UI.rolling[i]?'rolling':''} ${UI.landed&&UI.landed[i]?'land':''}" title="${v}">${pipFace(v)}</div>`).join('')}</div>`:'';
-  const rail=s=>`<div class="rail"><div class="rh">${s===1?`${chipH(1)}${pipsH(1)}<span class="grow"></span><span>Jailed ${teamChars(1).filter(c=>c.jail).length}/6</span>`:`<span>Jailed ${teamChars(2).filter(c=>c.jail).length}/6</span><span class="grow"></span>${pipsH(2)}${chipH(2)}`}</div>${teamChars(s).map(c=>pcard(c,{size:'sm',clamp:true,sel:G.sel===c.id})).join('')}</div>`;
+  const jc=s=>teamChars(s).filter(c=>c.jail).length;
+  const rail=s=>`<div class="rail"><div class="rh">${s===1?`${chipH(1)}${pipsH(1)}<span class="grow"></span><span>Jailed ${jc(1)}/6</span>`:`<span>Jailed ${jc(2)}/6</span><span class="grow"></span>${pipsH(2)}${chipH(2)}`}</div>${teamChars(s).map(c=>pcard(c,{size:'sm',clamp:true,sel:G.sel===c.id})).join('')}</div>`;
   const sc=G.sel!=null?ch(G.sel):null;
   const left=sc?pcard(sc,{size:'sm',clamp:true}):'<div class="nosel">No character picked yet. Tap one on the board.</div>';
   const tilesB=UI.buttons.filter(b=>b.d),plainB=UI.buttons.filter(b=>!b.d);
-  const dock=`<div class="dock ${UI.resolve?'live':''}"><div class="dl">${left}</div><div class="dr"><div class="dprompt">${esc(UI.prompt||(G.over?'Game over':'...'))}</div>${tilesB.length?`<div class="tiles">${tilesB.map(tileH).join('')}</div>`:''}<div class="dbtns">${plainB.map(btnH).join('')}</div></div></div>`;
-  return `${G.over?overHTML():''}<div class="wrap"><div class="tbar">${chipH(t)}<span class="lbl">${esc(G.sub||'')}</span>${aiBusy()?'<span class="lbl" style="color:var(--gold)">Computer is thinking...</span>':''}<span class="grow"></span>${dice}</div>
-  <div class="play">${rail(1)}<div class="center"><div class="boardwrap"><div id="board">${boardHTML()}</div></div>${dock}
-  <div class="legend"><span>Safe squares have a dot</span><span>Mud stops you</span><span>» Slide +2 squares</span><span>Ringed squares are starting squares</span><span>Gray squares are jail</span></div>
-  <div class="logp"><h3>Game log</h3><div class="logs">${G.log.map(l=>`<div>${esc(l)}</div>`).join('')}</div></div></div>${rail(2)}</div></div>${popupHTML()}`;
+  const lockB=b=>lk?{...b,off:true}:b;
+  const dock=`<div class="dock ${UI.resolve&&!lk?'live':''}"><div class="dl">${left}</div><div class="dr"><div class="dprompt">${esc(UI.prompt||(G.over?'Game over':'...'))}</div>${lk?'<span class="dnote">The computer picks its own move. Its choices are not highlighted and your buttons stay locked until it is done.</span>':''}${tilesB.length?`<div class="tiles">${tilesB.map(b=>tileH(lockB(b))).join('')}</div>`:''}<div class="dbtns">${plainB.map(b=>btnH(lockB(b))).join('')}</div></div></div>`;
+  const logp=`<div class="logp"><h3>Game log</h3><div class="logs">${G.log.map(l=>`<div>${esc(l)}</div>`).join('')}</div></div>`;
+  const legend='<div class="legend"><span>Safe squares have a dot</span><span>Mud stops you</span><span>» Slide +2 squares</span><span>Ringed squares are starting squares</span><span>Gray squares are jail</span></div>';
+  const bar=`<div class="tbar">${menuBtn()}${chipH(t)}${G.ai&&G.ai[t]?`<span class="lvl">${esc(G.ai[t])}</span>`:''}<span class="lbl">${esc(G.sub||'')}</span>${lk?'<span class="lbl think" style="color:var(--gold)">Computer is thinking<i></i><i></i><i></i></span>':''}<span class="grow"></span>${dice}</div>`;
+  let body;
+  if(narrow){
+    const tab=UI.tab||'blue';
+    const tabs=[['blue',`${tn(1)} squad${jc(1)?' · '+jc(1)+' jailed':''}`],['red',`${tn(2)} squad${jc(2)?' · '+jc(2)+' jailed':''}`],['log','Game log']].map(([k,l])=>`<button class="tabb ${tab===k?'on '+(k==='blue'?'t1':k==='red'?'t2':'t0'):''}" data-act="tab:${k}">${esc(l)}</button>`).join('');
+    const pane=tab==='log'?logp:`<div class="tgrid">${teamChars(tab==='blue'?1:2).map(c=>pcard(c,{size:'sm',sel:G.sel===c.id})).join('')}</div>`;
+    body=`<div class="center"><div class="boardwrap"><div id="board">${boardHTML()}</div></div>${dock}${legend}<div class="tabs">${tabs}</div><div class="tpane ${tab==='red'?'t2':tab==='blue'?'t1':'t0'}">${pane}</div></div>`;
+  }else{
+    body=`<div class="play">${rail(1)}<div class="center"><div class="boardwrap"><div id="board">${boardHTML()}</div></div>${dock}${legend}${logp}</div>${rail(2)}</div>`;
+  }
+  return `${G.over&&!UI.summary?overHTML():''}${G.over&&UI.summary?summaryHTML():''}<div class="wrap">${bar}${body}</div>${popupHTML()}${UI.menu?menuHTML():''}${UI.how?howHTML():''}`;
 }
 function render(){
   if(window.__fast)return;
+  applySet();
   const app=document.getElementById('app');
   document.getElementById('fx').innerHTML=UI.coin?`<div class="coinov"><div class="coinwrap"><div class="coin3d" style="--end:${UI.coin.end}deg"><div class="cface f">${esc(tn(1)[0].toUpperCase())}</div><div class="cface b">${esc(tn(2)[0].toUpperCase())}</div></div></div><div class="coinshadow"></div><div class="coincap">Flipping the coin...</div></div>`:(UI.banner?`<div class="banner">${esc(UI.banner)}</div>`:'');
   if(G.phase==='setup'){app.innerHTML=screenTitle();return;}
@@ -1371,18 +1513,42 @@ function render(){
   if(G.phase==='draft'){app.innerHTML=screenDraft();aiDraftHook();return;}
   app.innerHTML=screenPlay();
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&UI.how){UI.how=false;render();}});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(UI.how){UI.how=false;render();}else if(UI.menu){UI.menu=false;render();}else if(UI.summary){UI.summary=false;render();}
+});
+function keepTitle(){
+  const n1=document.getElementById('n1'),n2=document.getElementById('n2'),rs=document.getElementById('rstack');
+  if(n1&&n2)G.names={1:n1.value.trim()||'Blue',2:n2.value.trim()||'Red'};
+  if(rs)G.rules.stack=rs.checked;
+}
+let wasNarrow=window.innerWidth<=1100;
+window.addEventListener('resize',()=>{const n=window.innerWidth<=1100;if(n!==wasNarrow){wasNarrow=n;render();}});
 document.addEventListener('click',e=>{
-  if(e.target.closest('[data-act="howopen"]')){UI.how=true;render();return;}
-  const hc=e.target.closest('[data-act="howclose"]');
-  if(hc&&(hc.tagName==='BUTTON'||e.target===hc)){UI.how=false;render();return;}
-  if(e.target.closest('[data-act="peek"]')){UI.peek=!UI.peek;render();return;}
+  const act=e.target.closest('[data-act]');
+  if(act){
+    const a=act.dataset.act,direct=act.tagName==='BUTTON'||e.target===act;
+    if(a==='howopen'){UI.how=true;render();return;}
+    if(a==='howclose'&&direct){UI.how=false;render();return;}
+    if(a==='menuopen'){UI.menu=true;render();return;}
+    if(a==='menuclose'&&direct){UI.menu=false;render();return;}
+    if(a==='restart'){UI.menu=false;UI.how=false;UI.popup=null;UI.resolve=null;UI.summary=false;G=null;newGame();render();return;}
+    if(a==='sumopen'){UI.summary=true;render();return;}
+    if(a==='sumclose'){UI.summary=false;render();return;}
+    if(a==='sumcopy'){copySummary();return;}
+    if(a==='opp'){keepTitle();UI.opp=act.dataset.v;render();return;}
+    if(a.startsWith('tab:')){UI.tab=a.slice(4);render();return;}
+    if(a==='peek'){UI.peek=!UI.peek;render();return;}
+  }
+  const st=e.target.closest('[data-set]');
+  if(st){const k=st.dataset.set;if(k==='board')SET.board=st.dataset.v;else SET[k]=!SET[k];saveSet();render();return;}
   const b=e.target.closest('[data-b]');
   if(b&&UI.resolve&&!aiBusy()){answer({btn:b.dataset.b});return;}
   const c=e.target.closest('#board [data-x]');
   if(c&&UI.resolve&&!aiBusy()&&UI.cells&&UI.cells.has(c.dataset.x+','+c.dataset.y))answer({cell:{x:+c.dataset.x,y:+c.dataset.y}});
 });
 newGame();
+applySet();
 render();
 </script>
 </body>
