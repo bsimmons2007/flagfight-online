@@ -334,6 +334,18 @@ body[data-art="1"] .c.jail{background-color:rgb(75 80 96 / .3)}
 .sk-sv small{font-size:1.5cqw;font-weight:800;letter-spacing:.08em;color:#1A1A2E}
 .sk-pas{left:19.8%;top:80%;width:74%;height:14.6%;display:flex;flex-direction:column;justify-content:center;gap:.6cqw;font-size:2.9cqw;line-height:1.25;overflow:hidden}
 .sk-pas b{font-weight:800}
+.sk.rail .sk-nm b{font-size:5.8cqw}
+.sk.rail .sk-nm span{font-size:2.8cqw}
+.sk.rail .sk-num{font-size:4.9cqw}
+.sk.rail .sk-num.s3{font-size:3.6cqw}
+.sk.rail .sk-act{gap:2.6cqw}
+.sk.rail .sk-act b{font-size:4.2cqw}
+.sk.rail .sk-act i{font-size:2.4cqw}
+.sk.rail .sk-act p{font-size:3.7cqw;line-height:1.2;display:-webkit-box;-webkit-line-clamp:var(--lc,4);-webkit-box-orient:vertical;overflow:hidden}
+.sk.rail .sk-sv b{font-size:4.9cqw}
+.sk.rail .sk-sv small{font-size:1.7cqw}
+.sk.rail .sk-pas{display:flex;flex-direction:row;align-items:center;font-size:3.4cqw;line-height:1.2}
+.sk.rail .pc2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 body[data-cards="1"] .pool{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
 body[data-cards="1"] .pgrid{grid-template-columns:1fr minmax(220px,300px) 1fr}
 body[data-cards="1"] .tgrid{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
@@ -1446,17 +1458,20 @@ const shield=sv=>`<div class="shield"><svg viewBox="0 0 46 54" role="img" aria-l
 const ini=n=>n.slice(0,2);
 function skinCard(r,o,url){
   const team=o.team||0,st=o.state||'';
-  const acts=parseAb(r.active).map(a=>({n:a.n,e:a.e.replace(/\s*\(reaction\)/,''),cost:/reaction/.test(a.e)?'reaction':'1 token'}));
+  const rail=!!o.clamp;
+  const acts=parseAb(r.active).map(a=>({n:a.n,e:a.e.replace(/\s*\(reaction\)/,''),cost:/reaction/.test(a.e)?'reaction':'1 token'})).slice(0,rail?2:9);
   const pass=parseAb(r.passive),n=numOf(r.name);
-  const tag=st==='jail'?' · IN JAIL':st==='frozen'?' · FROZEN':'';
-  return `<div class="sk t${team} ${st} ${o.sel?'sel':''}" style="background-image:url('${url}')"><div class="sk-nm"><b>${r.name}</b><span>${r.type}${tag}</span></div><div class="sk-num ${String(n).length>2?'s3':''}">${n}</div>
+  const tag=st==='jail'?'IN JAIL':st==='frozen'?'FROZEN':'';
+  const sub=rail?tag:`${r.type}${tag?' · '+tag:''}`;
+  const passH=rail?`<div class="pc2">${pass.map(p=>`<b>${esc(p.n)}</b> ${esc(p.e)}`).join(' &nbsp;·&nbsp; ')}</div>`:pass.map(p=>`<div><b>${esc(p.n)}</b> ${esc(p.e)}</div>`).join('');
+  return `<div class="sk t${team} ${st} ${rail?'rail':''} ${o.sel?'sel':''}" style="background-image:url('${url}');--lc:${acts.length>1?3:6}"><div class="sk-nm"><b>${r.name}</b>${sub?`<span>${sub}</span>`:''}</div><div class="sk-num ${String(n).length>2?'s3':''}">${n}</div>
   <div class="sk-art"><div class="sk-tk">${ini(r.name)}</div></div>
   <div class="sk-act">${acts.map(a=>`<div><b>${esc(a.n)}</b><i>${a.cost}</i><p>${esc(a.e)}</p></div>`).join('')}</div>
   <div class="sk-sv"><b>${r.save}+</b><small>SAVE</small></div>
-  <div class="sk-pas">${pass.map(p=>`<div><b>${esc(p.n)}</b> ${esc(p.e)}</div>`).join('')}</div></div>`;
+  <div class="sk-pas">${passH}</div></div>`;
 }
 function pennant(r,o={}){
-  if(!o.clamp){const u=o.team===1?ART_OK['card-blue']:o.team===2?ART_OK['card-red']:ART_OK['card-neutral'];if(u)return skinCard(r,o,u);}
+  {const u=o.team===1?ART_OK['card-blue']:o.team===2?ART_OK['card-red']:ART_OK['card-neutral'];if(u)return skinCard(r,o,u);}
   const team=o.team||0,size=o.size||'sm',cl=!!o.clamp,st=o.state||'';
   let acts=parseAb(r.active).map(a=>({n:a.n,e:a.e.replace(/\s*\(reaction\)/,''),cost:/reaction/.test(a.e)?'reaction':'1 token'}));
   if(cl)acts=acts.slice(0,1);
