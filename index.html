@@ -431,7 +431,7 @@ const ART_OK={};
 function loadArt(){['board','board-campus','card-blue','card-red','card-neutral'].forEach(n=>{const tryExt=i=>{const ex=['jpg','png','webp'];if(i>=ex.length)return;const im=new Image();im.onload=()=>{ART_OK[n]='art/'+n+'.'+ex[i];applySet();if(/^card-/.test(n)){document.body.dataset.cards='1';render();}};im.onerror=()=>tryExt(i+1);im.src='art/'+n+'.'+ex[i];};tryExt(0);});}
 function applyScale(){
   const w=window.innerWidth,h=window.innerHeight;
-  const z=w>1100?Math.max(.8,Math.min(2.4,w/1500)):1;
+  const z=w>1100?Math.max(.55,Math.min(2.4,w/1500,h/820)):Math.max(.75,Math.min(1,h/820));
   if(document.body)document.body.style.zoom=z===1?'':String(z);
   const r=document.documentElement.style;
   r.setProperty('--vwu',(w/z)+'px');r.setProperty('--vhu',(h/z)+'px');
