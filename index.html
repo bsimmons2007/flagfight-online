@@ -312,8 +312,9 @@ body[data-art="1"] .c.l2,body[data-art="1"] .c.l2.k{background-color:rgb(66 34 4
 body[data-art="1"] .c.mud{background-color:rgb(122 86 48 / .85)}
 body[data-art="1"] .c.slide{background-color:rgb(47 106 168 / .85)}
 body[data-art="1"] .c.jail{background-color:rgb(75 80 96 / .3)}
-.sk{position:relative;width:100%;aspect-ratio:4/3;background-size:100% 100%;container-type:inline-size;color:#1A1A2E;font-family:var(--body);filter:drop-shadow(0 4px 6px rgb(0 0 0 / .45));border-radius:3cqw}
-.sk>*{position:absolute}
+.sk{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;container-type:inline-size;color:#1A1A2E;font-family:var(--body);border-radius:0}
+.sk-in{position:absolute;inset:0;background-size:100% 100%;transform:scale(1.045)}
+.sk-in>*{position:absolute}
 .sk.jail{filter:grayscale(1) brightness(.9)}
 .sk.sel{outline:4px solid var(--gold)}
 .sk-nm{left:8.4%;top:3.6%;width:31%;height:13%;display:flex;flex-direction:column;justify-content:center;gap:.4cqw;line-height:1}
@@ -1464,11 +1465,11 @@ function skinCard(r,o,url){
   const tag=st==='jail'?'IN JAIL':st==='frozen'?'FROZEN':'';
   const sub=rail?tag:`${r.type}${tag?' · '+tag:''}`;
   const passH=rail?`<div class="pc2">${pass.map(p=>`<b>${esc(p.n)}</b> ${esc(p.e)}`).join(' &nbsp;·&nbsp; ')}</div>`:pass.map(p=>`<div><b>${esc(p.n)}</b> ${esc(p.e)}</div>`).join('');
-  return `<div class="sk t${team} ${st} ${rail?'rail':''} ${o.sel?'sel':''}" style="background-image:url('${url}');--lc:${acts.length>1?3:6}"><div class="sk-nm"><b>${r.name}</b>${sub?`<span>${sub}</span>`:''}</div><div class="sk-num ${String(n).length>2?'s3':''}">${n}</div>
+  return `<div class="sk t${team} ${st} ${rail?'rail':''} ${o.sel?'sel':''}" style="--lc:${acts.length>1?3:6}"><div class="sk-in" style="background-image:url('${url}')"><div class="sk-nm"><b>${r.name}</b>${sub?`<span>${sub}</span>`:''}</div><div class="sk-num ${String(n).length>2?'s3':''}">${n}</div>
   <div class="sk-art"><div class="sk-tk">${ini(r.name)}</div></div>
   <div class="sk-act">${acts.map(a=>`<div><b>${esc(a.n)}</b><i>${a.cost}</i><p>${esc(a.e)}</p></div>`).join('')}</div>
   <div class="sk-sv"><b>${r.save}+</b><small>SAVE</small></div>
-  <div class="sk-pas">${passH}</div></div>`;
+  <div class="sk-pas">${passH}</div></div></div>`;
 }
 function pennant(r,o={}){
   {const u=o.team===1?ART_OK['card-blue']:o.team===2?ART_OK['card-red']:ART_OK['card-neutral'];if(u)return skinCard(r,o,u);}
