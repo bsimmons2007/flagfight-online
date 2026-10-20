@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flag Fight</title>
+<meta name="description" content="Flag Fight: the playground capture-the-flag game, with drafted characters and powers. Two players, one screen.">
+<meta name="theme-color" content="#0E131C">
+<meta property="og:title" content="Flag Fight">
+<meta property="og:description" content="The playground game, with powers. Draft 6 characters, steal the flag, don't get tagged.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E131C'/%3E%3Crect x='18' y='10' width='5' height='44' rx='2' fill='%23F1EDE4'/%3E%3Cpath d='M23 12 L52 22 L23 34Z' fill='%235B94FF'/%3E%3Cpath d='M23 30 L46 38 L23 46Z' fill='%23FF6459'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--cell:clamp(14px,calc((100vw - 640px)/30.7),28px);--bg:#0E131C;--panel:#172030;--panel2:#243249;--line:#3A4D6B;--text:#EEF2F8;--muted:#9FB0C8;--soft:#B4C2D8;--gold:#FFD54A;--blue:#5B94FF;--red:#FF6459;--green:#2F6A3F;--greenl:#4A9A5F;--ink:#1A1A2E;--night:#0A0F1C;--disp:'Bricolage Grotesque','Figtree',system-ui,sans-serif;--body:'Figtree',system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 var(--body);min-height:100vh}
+h1,h2,h3,p{margin:0}
+button{font-family:inherit;cursor:pointer}
+button:disabled{cursor:not-allowed}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1480px;margin:0 auto;padding:16px 20px}
+.grow{flex:1}
+.chip{display:inline-block;padding:4px 14px;border-radius:999px;font-weight:800;color:var(--night)}
+.chip.t1{background:var(--blue)}.chip.t2{background:var(--red)}
+.lbl{color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.btn{min-height:44px;padding:0 18px;border-radius:10px;background:var(--panel2);color:var(--text);border:1px solid var(--line);font-size:14px;font-weight:700}
+.btn:hover:not(:disabled){background:#2e3f5c}
+.btn.pri{background:var(--green);color:#fff;border-color:var(--greenl)}
+.btn.pri:hover:not(:disabled){background:#38804c}
+.btn.ghost{background:transparent;border-width:2px}
+.btn:disabled{opacity:.4}
+.btn.gold{background:var(--gold);color:var(--ink);border:4px solid var(--ink);box-shadow:4px 4px 0 #05080F;font-size:20px;font-weight:800;min-height:60px;border-radius:16px}
+.btn.gold:hover:not(:disabled){background:#ffe073}
+.tbar{display:flex;align-items:center;gap:14px;background:var(--panel);border-radius:12px;padding:8px 16px;min-height:52px;margin-bottom:14px}
+.dicerow{display:flex;gap:8px}
+.die{width:40px;height:40px;border-radius:9px;background:#F6F3EA;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:6px}
+.die.sm{width:34px;height:34px;border-radius:8px;padding:5px}
+.die i{border-radius:50%;margin:1px}.die i.on{background:var(--night)}
+.die.used{opacity:.35}
+.die.rolling{animation:tumble .3s linear infinite}
+@keyframes tumble{0%{transform:rotate(0) translateY(0)}25%{transform:rotate(90deg) translateY(-8px)}50%{transform:rotate(180deg) translateY(0)}75%{transform:rotate(270deg) translateY(-8px)}100%{transform:rotate(360deg) translateY(0)}}
+.die.land{animation:land .28s cubic-bezier(.2,1.6,.4,1)}
+@keyframes land{from{transform:scale(1.5) rotate(-12deg)}to{transform:none}}
+.play{display:grid;grid-template-columns:248px minmax(0,1fr) 248px;gap:16px;align-items:start;justify-content:center}
+@media(max-width:1100px){.play{grid-template-columns:1fr}.rail{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}.rail .rh{grid-column:1/-1}}
+.rail{display:flex;flex-direction:column;gap:10px}
+.rh{display:flex;align-items:center;gap:8px;height:30px;color:var(--muted);font-size:12px}
+.pipsr{display:flex;gap:4px}.pipsr i{width:12px;height:12px;border-radius:50%;background:#35425A}.pipsr i.on{background:var(--gold)}
+.center{display:flex;flex-direction:column;gap:12px;min-width:0;align-items:center}
+.boardwrap{position:relative;width:max-content;max-width:100%}
+#board{position:relative;display:grid;grid-template-columns:repeat(30,var(--cell));grid-auto-rows:var(--cell);gap:1px;width:max-content;background:#05080F;border:3px solid #05080F;border-radius:8px;overflow:hidden}
+.c{position:relative;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:calc(var(--cell)*.54);color:#E4F1FF;user-select:none}
+.c.l1{background:#1A3052}.c.l1.k{background:#172B4D}
+.c.l2{background:#42222F}.c.l2.k{background:#3C1F2C}
+.c.x14::after{content:'';position:absolute;right:-2px;top:0;bottom:0;width:3px;background:#F4F1E8;z-index:1}
+.c.safe{background-image:radial-gradient(circle,rgb(255 255 255 / .6) calc(var(--cell)*.11),transparent calc(var(--cell)*.11 + .5px))}
+.c.st{box-shadow:inset 0 0 0 2px rgb(255 255 255 / .5)}
+.c.mud{background:#7A5630}
+.c.slide{background:#2F6AA8}
+.c.jail{background:#4B5060}
+.c.wall{background:linear-gradient(#0004 1px,transparent 1px) 0 0/100% 33%,linear-gradient(90deg,#0004 1px,transparent 1px) 0 0/50% 33%,#B86A42}
+.c.hl{background-color:#6B5B1E;box-shadow:inset 0 0 0 3px var(--gold);cursor:pointer;animation:pulse 1s ease-in-out infinite;z-index:2}
+@keyframes pulse{50%{box-shadow:inset 0 0 0 3px #fff}}
+.cnt{font-weight:800;color:#fff;font-size:calc(var(--cell)*.7)}
+.p{position:relative;width:calc(var(--cell) - 4px);height:calc(var(--cell) - 4px);border-radius:50%;border:2px solid #F6F3EA;color:var(--night);font-weight:800;font-size:calc(var(--cell)*.42);display:flex;align-items:center;justify-content:center;z-index:3}
+.p.l3{font-size:calc(var(--cell)*.32)}
+.p.t1{background:var(--blue)}.p.t2{background:var(--red)}
+.p.sel{border-color:var(--gold);box-shadow:0 0 0 3px rgb(255 213 74 / .55)}
+.p .badge{position:absolute;top:-45%;right:-40%;width:70%;height:90%}
+.p .frz{position:absolute;top:-30%;left:-20%;color:#bff0ff;font-size:1.3em}
+.tree{position:absolute;inset:2px;width:calc(100% - 4px);height:calc(100% - 4px)}
+.mk{width:80%;height:80%}
+.flag{position:absolute;left:12%;top:4%;width:78%;height:92%;z-index:1}
+.dock{width:100%;max-width:875px;background:var(--panel);border:2px solid #2A3850;border-radius:16px;padding:12px;display:flex;gap:14px;align-items:flex-start}
+.dock.live{border-color:var(--gold)}
+.dock .dl{width:250px;flex:none}
+.dock .dr{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.dprompt{font-family:var(--disp);font-weight:800;font-size:20px;line-height:1.2}
+.dbtns{display:flex;gap:8px;flex-wrap:wrap}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.tile{min-height:58px;text-align:left;padding:7px 12px;border-radius:12px;background:#243249;border:2px solid var(--line);color:var(--text);display:flex;flex-direction:column;justify-content:center;gap:1px}
+.tile:hover:not(:disabled){background:#2e3f5c}
+.tile .tn{font-weight:800;font-size:14px}.tile .td{font-size:11.5px;color:var(--soft)}
+.tile:disabled{background:#121A2B;border-color:#1E2A3F;color:#6E7F99}.tile:disabled .td{color:#6E7F99}
+.nosel{height:124px;border:3px dashed var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;padding:0 16px}
+.legend{display:flex;gap:6px 18px;flex-wrap:wrap;color:var(--muted);font-size:12px;justify-content:center}
+.logp{width:100%;max-width:875px;background:var(--panel);border-radius:12px;padding:12px 16px;min-height:150px}
+.logp h3{font-family:var(--disp);font-size:16px;margin-bottom:6px}
+.logp div{font-size:13px;color:var(--muted);padding:3px 0 4px;border-bottom:1px solid #25324A}
+.logp div:first-of-type{color:var(--text)}
+.logs{max-height:240px;overflow:auto}
+/* pennant card */
+.pn{--tab:#FFD54A;--sh:#6B7A99;--r:14px;--nfs:22px;--numfs:36px;--hp:9px 12px 26px;--bp:0 10px 10px;--fs:11.5px;--gap:6px;--pp:6px 8px;--shw:34px;--shh:40px;font-family:var(--body);position:relative;width:100%}
+.pn.t1{--tab:var(--blue);--sh:var(--blue)}.pn.t2{--tab:var(--red);--sh:var(--red)}
+.pn.jail{--tab:#B9B6C4}.pn.frozen{--tab:#8FD8F5}
+.pn.lg{--r:16px;--nfs:28px;--numfs:46px;--hp:12px 14px 34px;--bp:2px 14px 14px;--fs:13.5px;--gap:8px;--pp:8px 10px;--shw:44px;--shh:52px}
+.pn.cl{--nfs:18px;--numfs:26px;--hp:7px 10px 14px;--bp:0 8px 8px;--gap:4px;--pp:4px 6px;--shw:24px;--shh:28px}
+.pn-in{background:#fff;border:3px solid var(--ink);border-radius:var(--r);overflow:hidden;box-shadow:4px 4px 0 var(--sh);color:var(--ink)}
+.pn.frozen .pn-in{background:#EAF7FD}
+.pn.jail{filter:grayscale(1) brightness(.92)}
+.pn.sel .pn-in{outline:4px solid var(--gold)}
+.pn-tab{background:var(--tab);clip-path:polygon(0 0,100% 0,100% 78%,50% 100%,0 78%);padding:var(--hp);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.pn-nm{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pn-name{font-family:var(--disp);font-weight:800;font-size:var(--nfs);line-height:1}
+.pn-type{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.pn-num{font-family:var(--disp);font-weight:800;font-size:var(--numfs);line-height:.9;color:#FFF8E7;text-shadow:2px 2px 0 var(--ink),-1px -1px 0 var(--ink),1px -1px 0 var(--ink),-1px 1px 0 var(--ink)}
+.pn-body{padding:var(--bp);display:flex;flex-direction:column;gap:var(--gap)}
+.pn-act{font-size:var(--fs);line-height:1.3}
+.pn-act b{font-weight:800}
+.pn-act i{font-style:normal;background:var(--ink);color:var(--gold);font-size:9.5px;font-weight:800;border-radius:4px;padding:1px 6px;margin-left:4px;white-space:nowrap;vertical-align:1px}
+.pn-e{color:#3B3550}
+.pn.cl .pn-e{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pn-pas{background:#DDF3D4;border:2px solid #2E6B3B;border-radius:10px;padding:var(--pp);display:flex;gap:8px;align-items:center}
+.pn.frozen .pn-pas{background:#DDF3D4}
+.pn-pt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.pn-p{font-size:var(--fs);line-height:1.3}
+.pn.cl .pn-p{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.pn-p b{font-weight:800}
+.shield{flex:none;width:var(--shw);height:var(--shh)}.shield svg{width:100%;height:100%;display:block}
+/* draft */
+.dhead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:18px}
+.dhead h1{font-family:var(--disp);font-weight:800;font-size:44px;line-height:1}
+.order{display:flex;gap:5px}
+.order span{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;border:2px solid var(--line);color:var(--muted)}
+.drow{display:flex;gap:16px;align-items:stretch;flex-wrap:wrap;margin-bottom:18px}
+.slotp{flex:1 1 400px;background:var(--panel);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.slotp.r{align-items:flex-end}
+.slots{display:flex;gap:10px}
+.slot{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:var(--night);border:3px dashed var(--line)}
+.slot.full{border-style:solid;border-color:var(--night)}
+.pickp{flex:1 1 260px;background:#2A2410;border:2px solid var(--gold);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;text-align:center}
+.pickp .big{font-family:var(--disp);font-weight:800;font-size:26px;line-height:1.1}
+.pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px 16px;align-items:start}
+.pool>div{display:flex;flex-direction:column;gap:8px}
+.dbtn{min-height:44px;border-radius:12px;color:var(--ink);border:3px solid var(--ink);font-weight:800;font-size:14px;box-shadow:3px 3px 0 var(--ink);width:100%}
+.dbtn.t1{background:var(--blue)}.dbtn.t2{background:var(--red)}
+.took{min-height:44px;border-radius:12px;color:var(--ink);border:3px solid var(--ink);font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+.took.t1{background:var(--blue)}.took.t2{background:var(--red)}
+/* title */
+.title{position:relative;min-height:100vh;overflow:hidden;background:var(--bg)}
+.title .bgb{position:absolute;left:-120px;top:180px;opacity:.5;transform:rotate(-6deg);--cell:36px}
+.title .wash{position:absolute;inset:0;background:linear-gradient(90deg,rgb(14 19 28 / .1) 0%,rgb(14 19 28 / .85) 62%,#0E131C 100%)}
+.title .big{position:absolute;left:60px;top:80px}
+.title h1{font-family:var(--disp);font-weight:800;font-size:clamp(56px,7vw,96px);line-height:.9;text-shadow:5px 5px 0 #05080F}
+.title .tag{color:#CBD5E4;font-size:20px;margin-top:8px}
+.newgame{position:absolute;right:60px;top:90px;width:min(500px,calc(100vw - 40px));background:var(--panel);border:3px solid var(--gold);border-radius:22px;padding:26px;display:flex;flex-direction:column;gap:18px}
+@media(max-width:1000px){.title .big{position:relative;left:0;top:0;padding:40px 24px 0}.newgame{position:relative;right:auto;top:auto;margin:24px auto}}
+.newgame .nt{font-family:var(--disp);font-weight:800;font-size:30px}
+.newgame label{font-size:13px;color:var(--muted)}
+.newgame input[type=text]{min-height:48px;border-radius:12px;background:var(--bg);color:var(--text);border:2px solid;padding:0 14px;font-size:16px;font-family:inherit;width:100%}
+.newgame .chk{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#CBD5E4;line-height:1.35}
+.newgame .chk input{width:22px;height:22px;flex:none}
+/* toss */
+.toss{min-height:100vh;position:relative;overflow:hidden;color:var(--night);display:flex;flex-direction:column;justify-content:flex-end;padding:70px clamp(24px,6vw,90px)}
+.toss.t1{background:var(--blue)}.toss.t2{background:var(--red)}
+.toss .coin{position:absolute;right:-120px;top:-120px;width:620px;height:620px;border-radius:50%;background:var(--gold);border:18px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:200px;color:var(--night);padding:0 150px 150px 0}
+.toss .res{font-family:var(--disp);font-weight:800;font-size:clamp(80px,19vw,300px);line-height:.85;letter-spacing:-.03em;text-transform:uppercase;position:relative}
+.toss .btn{background:var(--night);color:#fff;border:none;min-height:64px;padding:0 52px;border-radius:14px;font-size:19px;font-weight:800}
+/* popups */
+.ov{position:fixed;inset:0;background:rgb(5 8 15 / .72);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.pop{position:relative;width:min(1180px,100%);background:var(--panel);border:3px solid var(--gold);border-radius:22px;padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+.pop .ph{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.pop .pt{font-family:var(--disp);font-weight:800;font-size:34px;line-height:1}
+.pgrid{display:grid;grid-template-columns:1fr minmax(240px,400px) 1fr;gap:22px;align-items:center}
+@media(max-width:900px){.pgrid{grid-template-columns:1fr}}
+.pc3{display:flex;flex-direction:column;align-items:center;gap:14px}
+.bigdie{width:96px;height:96px;border-radius:22px;background:#F6F3EA;border:4px solid var(--night);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:13px;transform:rotate(-8deg)}
+.bigdie i{border-radius:50%;margin:2px}.bigdie i.on{background:var(--night)}
+.bigdie.q{align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:50px;color:var(--night);display:flex;padding:0}
+.bigdie.rolling{animation:tumble .3s linear infinite}
+.meter{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;width:100%}
+.mt{height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;border:3px solid #7A2F33;background:#3A1F24}
+.mt.ok{background:#1F3A2A;border-color:#2E6B3B}.mt.cur{border-color:var(--gold)}
+.mlbl{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:4px;width:100%}
+.stamp{border:4px solid var(--night);border-radius:10px;font-family:var(--disp);font-weight:800;font-size:32px;padding:2px 20px;transform:rotate(-4deg);color:var(--night)}
+.stamp.tag{background:var(--red)}.stamp.sav{background:#8FD08A}
+.pfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid #2A3850;padding-top:16px}
+.pfoot .msg{color:var(--muted);font-size:13px;flex:1 1 260px}
+.pfoot .btn{min-height:52px;font-size:15px}
+.spec{width:min(980px,100%);display:grid;grid-template-columns:1fr minmax(220px,300px) 1fr;gap:24px;align-items:center;padding:26px}
+@media(max-width:900px){.spec{grid-template-columns:1fr}}
+.eye{position:absolute;right:14px;top:14px;width:48px;height:48px;border-radius:50%;background:var(--panel2);border:2px solid var(--line);display:flex;align-items:center;justify-content:center}
+.disc{width:150px;height:150px;border-radius:50%;background:var(--gold);border:6px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:44px;color:var(--ink);text-align:center;line-height:1}
+.sbox{background:#11182A;border:2px solid var(--line);border-radius:12px;padding:10px 14px}
+.sbox.dim{opacity:.55}
+.peekback{position:fixed;right:20px;top:20px;z-index:25;min-height:48px;padding:0 18px;border-radius:999px;background:var(--panel2);color:var(--text);border:2px solid var(--gold);font-weight:700}
+.capbar{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:20;width:min(1115px,calc(100vw - 24px));background:#172A55;border:3px solid var(--gold);border-radius:18px;padding:12px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.capbar .ct{font-family:var(--disp);font-weight:800;font-size:40px;line-height:1;color:var(--gold)}
+.capbar .cx{color:#D0DBF0;font-size:16px;flex:1 1 260px}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:min(440px,100vw);z-index:20;background:var(--panel);border-left:2px solid var(--gold);padding:16px;display:flex;flex-direction:column;gap:12px;overflow:auto}
+.drawer .dt{font-family:var(--disp);font-weight:800;font-size:22px}
+.cap1{display:flex;gap:10px;align-items:center}.cap1>div{flex:1;min-width:0}
+.banner{position:fixed;left:50%;top:14%;transform:translateX(-50%);background:rgb(10 15 28 / .94);border:3px solid var(--gold);border-radius:16px;padding:16px 30px;font-family:var(--disp);font-weight:800;font-size:28px;text-align:center;z-index:40;max-width:92vw;animation:pop .25s cubic-bezier(.2,1.5,.4,1)}
+@keyframes pop{from{transform:translateX(-50%) scale(.8)}}
+/* over */
+.over{position:fixed;inset:0;z-index:50;overflow:auto;color:#F1F5FF}
+.over.t1{background:#0D1B45;--ac:#5B94FF;--sub:#9DBBFF;--sh:#060E26}
+.over.t2{background:#3D0F14;--ac:#FF6459;--sub:#FF9E96;--sh:#1F060A}
+.over .cf{position:absolute;border-radius:2px;opacity:.7}
+.over .in{position:relative;display:flex;gap:40px;align-items:center;justify-content:center;flex-wrap:wrap;min-height:100vh;padding:40px}
+.over .l{max-width:700px;display:flex;flex-direction:column;gap:18px}
+.over .go{color:var(--sub);font-size:14px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.over .wins{font-family:var(--disp);font-weight:800;font-size:clamp(70px,11vw,150px);line-height:.9;color:var(--ac);text-shadow:6px 6px 0 var(--sh)}
+.over .why{font-size:24px;line-height:1.35}
+.over .acts{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+.over .btn.g2{background:transparent;color:#F1F5FF;border:3px solid var(--ac);min-height:60px;font-size:18px;border-radius:14px;padding:0 28px}
+.over .btn.gold{box-shadow:4px 4px 0 var(--sh)}
+.squad{display:flex;gap:10px}
+.sq{display:flex;flex-direction:column;align-items:center;gap:4px;width:78px;font-size:13px;font-weight:700}
+.sq span{width:64px;height:64px;border-radius:50%;background:var(--ac);border:4px solid;color:var(--night);font-family:var(--disp);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:24px}
+.mvp{position:relative;width:min(440px,90vw);transform:rotate(2deg)}
+.mvp .bdg{position:absolute;top:-26px;right:-10px;z-index:2;background:var(--gold);color:var(--ink);border:4px solid var(--ink);border-radius:999px;font-weight:800;padding:6px 18px;transform:rotate(6deg)}
+.howp{width:min(1240px,100%);background:var(--bg);border:3px solid var(--gold);border-radius:22px;padding:28px 32px;display:flex;flex-direction:column;gap:22px}
+.howp .hh{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.howp h2{font-family:var(--disp);font-weight:800;font-size:clamp(36px,5vw,56px);line-height:1;flex:1}
+.goal{background:#172A55;border:3px solid var(--gold);border-radius:20px;padding:18px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.goal b{font-family:var(--disp);font-weight:800;font-size:28px;color:var(--gold)}
+.goal span{font-size:18px;line-height:1.4;flex:1 1 300px}
+.hsteps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.hstep{background:var(--panel);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:8px}
+.hstep i{width:44px;height:44px;border-radius:50%;background:var(--gold);color:var(--ink);font-family:var(--disp);font-weight:800;font-size:22px;display:flex;align-items:center;justify-content:center;font-style:normal}
+.hstep b{font-family:var(--disp);font-weight:800;font-size:24px}
+.hstep span{color:var(--soft);font-size:15px;line-height:1.45}
+.hrules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.hrule{background:#11182A;border:2px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.hrule b{font-weight:800}
+.hrule span{color:var(--soft);font-size:14px;line-height:1.45}
+.coinov{position:fixed;inset:0;z-index:60;background:rgb(5 8 15 / .86);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:48px}
+.coinwrap{perspective:900px;height:260px;display:flex;align-items:flex-end}
+.coin3d{position:relative;width:200px;height:200px;transform-style:preserve-3d;animation:cflip 2.6s cubic-bezier(.25,.6,.3,1) forwards}
+@keyframes cflip{0%{transform:translateY(0) rotateY(0)}45%{transform:translateY(-190px) rotateY(calc(var(--end)*.55))}100%{transform:translateY(0) rotateY(var(--end))}}
+.cface{position:absolute;inset:0;border-radius:50%;border:12px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:96px;color:var(--night);backface-visibility:hidden;box-shadow:inset 0 0 0 6px rgb(255 255 255 / .35)}
+.cface.f{background:var(--blue)}.cface.b{background:var(--red);transform:rotateY(180deg)}
+.coinshadow{width:160px;height:22px;border-radius:50%;background:rgb(0 0 0 / .5);animation:cshadow 2.6s cubic-bezier(.25,.6,.3,1) forwards}
+@keyframes cshadow{0%{transform:scale(1)}45%{transform:scale(.45);opacity:.4}100%{transform:scale(1)}}
+.coincap{font-family:var(--disp);font-weight:800;font-size:34px}
+@media(prefers-reduced-motion:reduce){*{animation-duration:0s!important;transition-duration:0s!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="fx"></div>
+<script>
+'use strict';
+const W=30,H=15;
+const rnd=n=>Math.floor(Math.random()*n), d6=()=>1+rnd(6);
+const sleep=ms=>window.__fast?Promise.resolve():new Promise(r=>setTimeout(r,ms));
+const tn=t=>(typeof G!=='undefined'&&G&&G.names&&G.names[t])||(t===1?'Blue':'Red');
+const terr=x=>x<=14?1:2;
+const dist=(a,b)=>Math.max(Math.abs(a.x-b.x),Math.abs(a.y-b.y));
+const rot=(x,y)=>[W-1-x,H-1-y];
+const D4=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}], HD=D4.slice(0,2), VD=D4.slice(2);
+class GameOver extends Error{}
+
+// [name,type,save,passive,active]
+const ROSTER=[
+['Zoe','Sprinter',5,'Quick Feet: +1 to the die used when it moves.','Second Wind: move up to 2 extra squares in a straight line.'],
+['Danny','Dodger',3,'Slippery: the best Save in the game.','Juke: re-roll a failed Saving Throw (reaction).'],
+['Rosie','Rescuer',4,'Helping Hand: can free a jailed teammate from just outside the jail (1 square away).','Jailbreak: free ALL jailed teammates.'],
+['Hudson','Hopper',4,'Hurdle: may hop over one piece or tree in its path.','Big Leap: jump over pieces in a straight line, up to 3 squares.'],
+['Gabe','Guardian',3,'Stand Firm: adjacent teammates get +1 on Saves. | Big Shoes: cannot be shoved or swapped.','Take the Tag: when a teammate within 2 is tagged, Gabe takes the tag instead (reaction).'],
+['Scarlett','Scout',4,'Light Pack: carries the flag without the -1 penalty.','Shortcut: swap places with a teammate within 4.'],
+['Cal','Captain',4,'Team Spirit: your team may hold 4 power tokens.','Pep Talk: re-roll one die. | Rally Cry: every teammate may move 1 square.'],
+['Shay','Shadow Kid',5,'Stealth: can only be tagged from adjacent.','Shadow Step: teleport to any safe square within 6.'],
+['Bo','Big Kid',3,'Long Arms: tag range is 3 squares.','Shove: push an adjacent enemy 2 squares away.'],
+['Tessa','Trickster',5,'Sticky Fingers: gains an extra token when it jails an enemy.','Switcheroo: swap places with any character within 3.'],
+['Mia','Medic',4,'First Aid: when a teammate within 2 is tagged, it may re-roll once.','Patch Up: a teammate within 3 re-rolls a failed Save (reaction).'],
+['Kai','Climber',4,'Treetop: can move through trees (cannot end on one).','Pounce: tag a target up to 3 squares away.'],
+['Gio','Goalie',3,'Home Turf: enemies it tags save at -1.','Freeze: an enemy within 3 cannot move on its next activation.'],
+['Kit','Kicker',4,'Strong Kick: carrying the flag, may throw it up to 4 squares to a teammate (as the action).','Long Pass: throw the flag up to 8 squares to a teammate.'],
+['Sam','Skater',5,'Glide: after moving, may slide 1 more square.','Slide: move up to 4 squares in a straight line, ignoring dice.'],
+['Chloe','Cheerleader',4,'Morale: gain 1 token when you free a teammate.','Big Cheer: teammates within 3 get +1 on Saves until your next turn.'],
+['Clyde','Class Clown',4,'Funny Face: enemies tagging within 2 of Clyde: target saves at +1.','Banana Peel: place a banana on an empty square within 2. An enemy entering it slips: move ends, loses its action.'],
+['Maya','Mastermind',5,'Plan Ahead: once per turn, re-roll one die for free.','Plot Twist: swap places of two teammates.'],
+['Brody','Builder',4,'Pillow Fort: its own square counts as safe for it (not while it carries the flag).','Snow Wall: place a wall on an empty square within 2 until your next turn.'],
+['Dex','Daredevil',5,'Reckless: re-roll any die showing 1 when moving.','Double or Nothing: flip the coin. Heads: take a second Sprint. Tails: Dex skips his next activation.'],
+].map(([name,type,save,passive,active])=>({name,type,save,passive,active}));
+
+// ---------- board ----------
+const T=Array.from({length:H},()=>Array(W).fill('')), SAFE=Array.from({length:H},()=>Array(W).fill(false));
+const HOME={1:{x:3,y:7},2:{x:26,y:7}}, JAIL={1:[],2:[]}; // JAIL[t]: the 6 squares holding team t's captives, in enemy land
+for(let x=27;x<=29;x++)for(let y=0;y<=1;y++){JAIL[1].push({x,y});const [a,b]=rot(x,y);JAIL[2].push({x:a,y:b});}
+(function(){
+  const put=(list,fn)=>{for(const [x,y] of list){fn(x,y);const [a,b]=rot(x,y);fn(a,b);}};
+  put([[6,2],[7,2],[6,12],[7,12],[10,3],[11,3],[10,4],[10,10],[10,11],[11,11],[12,6],[12,8],[14,3],[14,11],[9,7]],(x,y)=>T[y][x]='tree');
+  put([[4,2],[4,12],[8,9],[8,5],[13,4],[13,10]],(x,y)=>T[y][x]='mud');
+  put([[11,7],[5,3],[5,11]],(x,y)=>T[y][x]='slide');
+  put([[12,3],[12,11],[14,7],[9,2],[9,12]],(x,y)=>SAFE[y][x]=true);
+  for(let x=0;x<=2;x++)for(let y=5;y<=9;y++){SAFE[y][x]=true;const [a,b]=rot(x,y);SAFE[b][a]=true;}
+})();
+const STARTY=[1,3,6,8,11,13], START={1:[],2:[]};
+for(const y of STARTY){START[1].push({x:8,y});const [a,b]=rot(8,y);START[2].push({x:a,y:b});}
+const baseCells=t=>{const o=[];for(let x=0;x<W;x++)for(let y=0;y<H;y++)if(SAFE[y][x]&&terr(x)===t&&dist({x,y},HOME[t])<=3&&(t===1?x<=2:x>=27))o.push({x,y});return o.sort((a,b)=>dist(a,HOME[t])-dist(b,HOME[t])||a.y-b.y);};
+
+// ---------- state ----------
+let G, UI={prompt:'',buttons:[],cells:null,resolve:null,banner:''};
+function newGame(){
+  const rules=G?G.rules:{stack:true},names=G?G.names:null;
+  G={phase:'setup',rules,chars:[],tokens:{1:2,2:2},flags:{1:{x:3,y:7,c:null},2:{x:26,y:7,c:null}},markers:[],cur:1,log:[],over:null,dice:null,used:[0,0],picks:[],drafter:0,order:[],pending:false,coin:null,names,sel:null,sub:''};
+}
+const ch=id=>G.chars[id];
+const teamChars=t=>G.chars.filter(c=>c.team===t);
+const alive=c=>!c.jail;
+const charAt=(x,y)=>G.chars.find(c=>!c.jail&&c.x===x&&c.y===y);
+const wallAt=(x,y)=>G.markers.find(m=>m.type==='wall'&&m.x===x&&m.y===y);
+const bananaAt=(x,y)=>G.markers.find(m=>m.type==='banana'&&m.x===x&&m.y===y);
+const cap=t=>teamChars(t).some(c=>c.name==='Cal')?4:3;
+const addTokens=(t,n)=>{G.tokens[t]=Math.min(cap(t),G.tokens[t]+n);};
+const log=m=>{G.log.unshift(m);if(G.log.length>80)G.log.pop();};
+const has=n=>G.chars.find(c=>c.name===n);
+
+// ---------- UI plumbing ----------
+function input(prompt,buttons=[],cells=null){
+  return new Promise(res=>{
+    UI.prompt=prompt;UI.buttons=buttons;UI.cells=cells?new Set(cells.map(c=>c.x+','+c.y)):null;UI.resolve=res;UI.who=G.cur;
+    render();
+  });
+}
+function answer(v){const r=UI.resolve;if(!r)return;UI.resolve=null;UI.cells=null;UI.buttons=[];UI.prompt='';r(v);}
+const ask=async(prompt,btns)=>(await input(prompt,btns)).btn;
+async function flash(text,ms=1100){UI.banner=text;render();await sleep(ms);UI.banner='';render();}
+async function rollDice(){
+  UI.rolling=[1,1];
+  for(let i=0;i<9;i++){G.dice=[d6(),d6()];G.used=[0,0];render();await sleep(80);}
+  UI.rolling=null;UI.landed=[1,1];
+  G.dice=[d6(),d6()];G.used=[0,0];log(`${tn(G.cur)} rolls ${G.dice[0]} and ${G.dice[1]}`);render();UI.landed=null;
+}
+const mayaFree=()=>!!G.mayaFree&&teamChars(G.cur).some(c=>c.name==='Maya'&&alive(c));
+async function rerollDie(i){
+  if(mayaFree())G.mayaFree=false;else G.tokens[G.cur]--;
+  UI.rolling=[0,0];UI.rolling[i]=1;
+  for(let k=0;k<6;k++){G.dice[i]=d6();render();await sleep(80);}
+  UI.rolling=null;UI.landed=[0,0];UI.landed[i]=1;
+  G.dice[i]=d6();log(`${tn(G.cur)} re-rolls: die is now ${G.dice[i]}`);render();UI.landed=null;
+}
+
+// ---------- geometry / movement ----------
+function classify(c,x,y){
+  if(x<0||y<0||x>=W||y>=H)return 'out';
+  if(wallAt(x,y))return 'wall';
+  if(T[y][x]==='tree')return 'tree';
+  const o=charAt(x,y);
+  if(o&&o!==c)return o.team===c.team?'ally':'enemy';
+  return 'free';
+}
+const passable=(c,k,o)=>k==='free'||k==='ally'||(k==='enemy'&&o.jump)||(k==='tree'&&c.name==='Kai');
+const endable=(c,x,y)=>classify(c,x,y)==='free';
+function landing(c,x,y,dir){
+  const b=bananaAt(x,y);
+  if(b&&b.team!==c.team)return{x,y,slip:b};
+  const t=T[y][x];
+  if(t==='mud')return{x,y};
+  if(t==='slide'){
+    let px=x,py=y,fx=x,fy=y;
+    for(let i=0;i<2;i++){const nx=px+dir.x,ny=py+dir.y;if(!passable(c,classify(c,nx,ny),{}))break;px=nx;py=ny;if(classify(c,px,py)==='free'){fx=px;fy=py;}}
+    return{x:fx,y:fy};
+  }
+  return null;
+}
+function traverse(c,start,dir,n,h,o={}){
+  const out=[];let x=start.x,y=start.y,used=0;
+  while(used<n){
+    let nx=x+dir.x,ny=y+dir.y,cost=1,k=classify(c,nx,ny);
+    if(!passable(c,k,o)){
+      if(h>0&&(k==='enemy'||k==='tree')&&used+2<=n){
+        const jx=nx+dir.x,jy=ny+dir.y,k2=classify(c,jx,jy);
+        if(passable(c,k2,o)){h--;nx=jx;ny=jy;k=k2;cost=2;}else break;
+      }else break;
+    }
+    used+=cost;
+    if(k==='free'){const L=landing(c,nx,ny,dir);if(L){out.push({x:L.x,y:L.y,h,term:true,slip:L.slip,dir,ok:endable(c,L.x,L.y)});break;}}
+    x=nx;y=ny;
+    out.push({x,y,h,term:false,dir,ok:endable(c,x,y)});
+  }
+  return out;
+}
+function zoneOK(c,x,y){
+  const h=HOME[c.team];
+  if(dist({x,y},h)>3||c.exempt>0||dist(c,h)<=3)return true;
+  return teamChars(c.team).filter(o=>o!==c&&alive(o)&&o.exempt<=0&&dist(o,h)<=3).length<2;
+}
+const hur=c=>c.name==='Hudson'?1:0;
+function lineCells(c,n,o={}){
+  const m=new Map();
+  for(const d of D4)for(const r of traverse(c,c,d,n,o.noHurdle?0:hur(c),o))if(r.ok&&zoneOK(c,r.x,r.y)){const k=r.x+','+r.y;if(!m.has(k))m.set(k,r);}
+  return m;
+}
+function sprintCells(c,assigns){
+  const m=new Map();
+  const add=r=>{if(r.ok&&zoneOK(c,r.x,r.y)){const k=r.x+','+r.y;if(!m.has(k))m.set(k,r);}};
+  for(const [a,b] of assigns)for(const order of [0,1]){
+    const s=order?[{n:b,d:VD},{n:a,d:HD}]:[{n:a,d:HD},{n:b,d:VD}];
+    const s2=order?[{n:a,d:HD}]:[{n:b,d:VD}];
+    for(const d1 of s[0].d)for(const r of traverse(c,c,d1,s[0].n,hur(c))){
+      add(r);
+      if(!r.term)for(const d2 of s[1].d)for(const q of traverse(c,r,d2,s[1].n,r.h))add(q);
+    }
+  }
+  return m;
+}
+function eff(c,d){
+  const f=G.flags[3-c.team];
+  let v=d;
+  if(f.c===c.id&&c.name!=='Scarlett')v=Math.max(1,v-1);
+  if(c.name==='Zoe')v+=1;
+  return v;
+}
+function placeChar(c,x,y){
+  c.x=x;c.y=y;
+  for(const t of [1,2])if(G.flags[t].c===c.id){G.flags[t].x=x;G.flags[t].y=y;}
+  checkWin();
+}
+function swapPos(a,b){
+  const ax=a.x,ay=a.y;a.x=b.x;a.y=b.y;b.x=ax;b.y=ay;
+  for(const t of [1,2]){const f=G.flags[t];if(f.c===a.id||f.c===b.id){const k=ch(f.c);f.x=k.x;f.y=k.y;}}
+  checkWin();
+}
+function applyMove(c,r){
+  placeChar(c,r.x,r.y);
+  if(r.slip){G.markers=G.markers.filter(m=>m!==r.slip);log(`${c.name} slips on a banana and loses the action!`);return true;}
+  return false;
+}
+function checkWin(){
+  for(const t of [1,2]){
+    const f=G.flags[3-t];
+    if(f.c!=null){const k=ch(f.c);if(homeReached(k))win(k.team,`${k.name} #${numOf(k.name)} carried the flag home to a starting square.`,k.id);}
+    if(teamChars(t).every(c=>c.jail))win(3-t,`All of ${tn(t)}'s characters are in jail.`);
+  }
+}
+function homeReached(k){
+  const st=START[k.team];
+  if(st.some(p=>p.x===k.x&&p.y===k.y))return true;
+  const blocked=st.every(p=>{const o=charAt(p.x,p.y);return o&&o!==k;});
+  return blocked&&dist(k,HOME[k.team])<=3;
+}
+function win(team,why,mvp){
+  if(mvp==null)mvp=teamChars(team).slice().sort((a,b)=>(b.tags||0)-(a.tags||0))[0].id;
+  G.over={team,why,mvp};log(`${tn(team)} wins: ${why}`);throw new GameOver();
+}
+
+// ---------- tagging ----------
+function los(a,b){
+  let x=a.x,y=a.y;const dx=Math.abs(b.x-a.x),dy=Math.abs(b.y-a.y),sx=a.x<b.x?1:-1,sy=a.y<b.y?1:-1;let e=dx-dy;
+  while(!(x===b.x&&y===b.y)){
+    const e2=2*e;if(e2>-dy){e-=dy;x+=sx;}if(e2<dx){e+=dx;y+=sy;}
+    if(x===b.x&&y===b.y)break;
+    if(T[y][x]==='tree'||wallAt(x,y))return false;
+  }
+  return true;
+}
+function isSafe(o){
+  if(SAFE[o.y][o.x])return true;
+  const b=teamChars(o.team).find(k=>k.name==='Brody'&&alive(k));
+  return !!b&&b===o&&G.flags[3-b.team].c!==b.id;
+}
+function tagTargets(c,range){
+  if(terr(c.x)!==c.team)return [];
+  return G.chars.filter(o=>o.team!==c.team&&alive(o)&&terr(o.x)===c.team&&dist(c,o)<=range&&!isSafe(o)&&(o.name!=='Shay'||dist(c,o)<=1)&&los(c,o));
+}
+function saveMod(t,tagger){
+  const pos=[],neg=[];
+  const gabe=teamChars(t.team).find(g=>g.name==='Gabe'&&alive(g)&&g!==t&&dist(g,t)<=1);if(gabe)pos.push(1);
+  if(t.cheer)pos.push(1);
+  const cl=teamChars(t.team).find(g=>g.name==='Clyde'&&alive(g)&&dist(g,tagger)<=2);if(cl)pos.push(1);
+  if(tagger.name==='Gio')neg.push(-1);
+  const p=G.rules.stack?pos.reduce((a,b)=>a+b,0):Math.max(0,...pos);
+  return p+neg.reduce((a,b)=>a+b,0);
+}
+function sendToJail(target,tagger){
+  const f=G.flags[3-target.team];
+  if(f.c===target.id){f.c=null;f.x=target.x;f.y=target.y;log(`${target.name} drops the flag!`);}
+  target.jail=true;target.x=target.y=null;tagger.tags=(tagger.tags||0)+1;
+  addTokens(tagger.team,1+(tagger.name==='Tessa'?1:0));
+  log(`${tagger.name} tags ${target.name}: to jail! (+token)`);
+  checkWin();
+}
+async function savePop(p,buttons,autoMs){
+  UI.popup={type:'save',...p};
+  let t=null;
+  if(autoMs)t=setTimeout(()=>{if(UI.resolve&&UI.popup&&UI.popup.type==='save')answer({btn:'ok'});},autoMs);
+  const r=await input('',buttons);
+  clearTimeout(t);
+  return r.btn;
+}
+async function rollAnim(b){
+  for(let i=0;i<13;i++){UI.popup={type:'save',...b,stage:'roll',val:d6()};render();await sleep(90+i*24);}
+}
+async function tagFlow(tagger,target){
+  const gabe=teamChars(target.team).find(g=>g.name==='Gabe'&&alive(g)&&g!==target&&dist(g,target)<=2);
+  const toks=t=>`${tn(t)} has ${G.tokens[t]} token${G.tokens[t]===1?'':'s'}.`;
+  if(gabe&&G.tokens[target.team]>=1){
+    const d0=dist(tagger,target),n0=target.save+(d0<=1?1:0);
+    const a=await savePop({tagger,target,need:n0,mod:saveMod(target,tagger),stage:'pre',msg:`${tn(target.team)} can still react before the tag lands. ${toks(target.team)}`},[{id:'y',label:`Gabe #${numOf('Gabe')}: Take the Tag (1 token)`},{id:'n',label:'No thanks',k:'pri'}]);
+    if(a==='y'){G.tokens[target.team]--;log(`Gabe takes the tag for ${target.name}!`);target=gabe;}
+  }
+  const d=dist(tagger,target),need=target.save+(d<=1?1:0),mod=saveMod(target,tagger);
+  let r=d6(),ok=r+mod>=need;
+  await rollAnim({tagger,target,need,mod});
+  let st={tagger,target,need,mod,stage:'result',val:r,ok};
+  UI.popup={type:'save',...st};render();await sleep(1200);
+  const mia=teamChars(target.team).find(m=>m.name==='Mia'&&alive(m)&&m!==target&&dist(m,target)<=2);
+  if(!ok&&mia){r=d6();ok=r+mod>=need;log('Mia: First Aid re-roll');st={...st,val:r,ok};await rollAnim({tagger,target,need,mod,msg:'Mia: First Aid re-roll'});UI.popup={type:'save',...st,msg:'Mia: First Aid re-roll'};render();await sleep(1200);}
+  while(!ok){
+    const opts=[];
+    if(target.name==='Danny'&&G.tokens[target.team]>=1)opts.push({id:'juke',label:'Juke (1 token)'});
+    const mi2=teamChars(target.team).find(m=>m.name==='Mia'&&alive(m)&&m!==target&&dist(m,target)<=3);
+    if(mi2&&G.tokens[target.team]>=1)opts.push({id:'patch',label:`Mia #${numOf('Mia')}: Patch Up (1 token)`});
+    if(!opts.length)break;
+    const a=await savePop({...st,msg:`${tn(target.team)} can still react before the tag lands. ${toks(target.team)}`},[...opts,{id:'no',label:'Accept the tag',k:'pri'}]);
+    if(a==='no')break;
+    G.tokens[target.team]--;r=d6();ok=r+mod>=need;st={...st,val:r,ok};
+    await rollAnim({tagger,target,need,mod});
+    UI.popup={type:'save',...st};render();await sleep(1200);
+  }
+  await savePop({...st,msg:ok?`${target.name} saved.`:`${target.name} is tagged and goes to jail.`},[{id:"ok",label:"Continue",k:"pri"}],2200);
+  UI.popup=null;
+  if(ok){log(`${target.name} saves against ${tagger.name}`);return;}
+  sendToJail(target,tagger);
+}
+
+// ---------- teleport / jail ----------
+function sendHome(o){
+  const cell=baseCells(o.team).find(p=>!charAt(p.x,p.y));
+  if(!cell)return;
+  o.jail=false;o.exempt=2;placeChar(o,cell.x,cell.y);
+}
+const jailReach=c=>c.name==='Rosie'?1:0;
+const canFree=c=>teamChars(c.team).some(o=>o.jail)&&!carrying(c)&&JAIL[c.team].some(j=>dist(c,j)<=jailReach(c));
+async function freeAction(c,all){
+  const capv=teamChars(c.team).filter(o=>o.jail);
+  let list=capv;
+  if(all){if(G.tokens[c.team]<1)return false;G.tokens[c.team]--;}
+  else{
+    UI.popup={type:'jail',caps:capv.map(o=>o.id),c};
+    const btns=[...capv.map(o=>({id:'f'+o.id,label:'Free'})),...(c.name==='Rosie'&&G.tokens[c.team]>=1&&capv.length>1?[{id:'jb',label:'Jailbreak: free everyone (1 token)',k:'x'}]:[]),{id:'back',label:'Back'}];
+    const r=await input(`${c.name}: free a teammate`,btns);
+    UI.popup=null;
+    if(r.btn==='back')return false;
+    if(r.btn==='jb'){G.tokens[c.team]--;list=capv;}else list=[ch(+r.btn.slice(1))];
+  }
+  list.forEach(sendHome);sendHome(c);
+  if(c.name==='Chloe')addTokens(c.team,list.length);
+  log(`${c.name} frees ${list.map(o=>o.name).join(', ')}; everyone back to base`);
+  return true;
+}
+
+// ---------- popups ----------
+async function specPop(p){
+  UI.popup={type:'spec',...p};UI.peek=false;
+  await input('',[{id:'ok',label:'Continue',k:'pri'}]);
+  UI.popup=null;UI.peek=false;
+}
+async function slipPop(c,mk){
+  const cl=mk?G.chars.find(k=>k.name==='Clyde'&&k.team===mk.team):null;
+  await specPop({label:'Special · Banana Peel',disc:'Slip!',title:'',sub:`${c.name} #${numOf(c.name)} stepped on a banana.`,card:cl,boxes:[{t:`${c.name} #${numOf(c.name)}`,d:'Move ends here and the action is lost',col:TC[c.team]}]});
+}
+async function capPop(c){
+  const opp=3-c.team;
+  UI.popup={type:'cap',title:'Flag captured!',text:`${c.name} #${numOf(c.name)} has ${tn(opp)}'s flag. Get them back to a starting square.`};
+  await input('',[{id:'ok',label:'Continue',k:'pri'}]);
+  UI.popup=null;
+}
+
+// ---------- actions ----------
+async function pickCell(prompt,cells){
+  if(!cells.length)return null;
+  const r=await input(prompt,[{id:'back',label:'Back'}],cells);return r.cell||null;
+}
+const pay=c=>{if(G.tokens[c.team]<1)return false;G.tokens[c.team]--;return true;};
+const near=(c,n,f=()=>true)=>G.chars.filter(o=>alive(o)&&o!==c&&dist(c,o)<=n&&f(o));
+const mates=c=>G.chars.filter(o=>o.team===c.team&&alive(o)&&o!==c);
+const swappable=o=>o.name!=='Gabe';
+const swapOK=(a,b)=>zoneOK(a,b.x,b.y)&&zoneOK(b,a.x,a.y);
+function emptyIn(c,n){
+  const o=[];
+  for(let x=c.x-n;x<=c.x+n;x++)for(let y=c.y-n;y<=c.y+n;y++)
+    if(x>=0&&y>=0&&x<W&&y<H&&classify(c,x,y)==='free'&&!G.markers.some(m=>m.x===x&&m.y===y)&&!(x===c.x&&y===c.y))o.push({x,y});
+  return o;
+}
+async function lineAbility(c,n,o={}){
+  const m=lineCells(c,n,o);
+  const cell=await pickCell(`${c.name}: choose destination`,[...m.values()]);
+  if(!cell)return false;
+  pay(c);applyMove(c,m.get(cell.x+','+cell.y));return true;
+}
+async function pickChar(prompt,list){
+  const cell=await pickCell(prompt,list);return cell?charAt(cell.x,cell.y):null;
+}
+async function swapAbility(c,list,txt){
+  const o=await pickChar(`${c.name}: ${txt}`,list);if(!o)return false;
+  pay(c);swapPos(c,o);log(`${c.name} swaps with ${o.name}`);return true;
+}
+async function doTag(c,range,cost){
+  const t=tagTargets(c,range);
+  const o=await pickChar(`${c.name}: choose who to tag`,t);if(!o)return false;
+  if(cost)pay(c);
+  log(`${c.name} tags ${o.name}`);
+  await tagFlow(c,o);return true;
+}
+const dicePlaying=()=>G.dice&&G.used.some(u=>!u);
+const ABIL={
+  Zoe:[{label:'Second Wind',can:c=>lineCells(c,2).size>0,run:c=>lineAbility(c,2)}],
+  Rosie:[{label:'Jailbreak',can:canFree,run:c=>freeAction(c,true)}],
+  Hudson:[{label:'Big Leap',can:c=>lineCells(c,3,{jump:true,noHurdle:true}).size>0,run:c=>lineAbility(c,3,{jump:true,noHurdle:true})}],
+  Scarlett:[{label:'Shortcut',can:c=>near(c,4,o=>o.team===c.team&&swappable(o)&&swapOK(c,o)).length>0,run:c=>swapAbility(c,near(c,4,o=>o.team===c.team&&swappable(o)&&swapOK(c,o)),'swap with which teammate?')}],
+  Cal:[
+    {label:'Pep Talk',can:c=>dicePlaying()&&mates(c).length>0,run:async c=>{
+      const idx=[0,1].filter(i=>!G.used[i]);
+      const r=await input('Pep Talk: re-roll which die?',[...idx.map(i=>({id:'d'+i,label:`Die showing ${G.dice[i]}`})),{id:'back',label:'Back'}]);
+      if(r.btn==='back')return false;pay(c);const i=+r.btn[1];G.dice[i]=d6();log(`Pep Talk: die is now ${G.dice[i]}`);return true;}},
+    {label:'Rally Cry',can:c=>mates(c).length>0,run:async c=>{
+      pay(c);const moved=new Set();
+      for(;;){
+        const list=mates(c).filter(o=>!moved.has(o.id)&&!o.frozen);
+        const r=await input('Rally Cry: pick a teammate to step 1 square',[{id:'done',label:'Done'}],list);
+        if(r.btn)break;
+        const o=charAt(r.cell.x,r.cell.y),m=lineCells(o,1,{noHurdle:true});
+        const cell=await pickCell(`${o.name}: step to...`,[...m.values()]);
+        if(cell){applyMove(o,m.get(cell.x+','+cell.y));moved.add(o.id);}
+      }
+      return true;}}],
+  Shay:[{label:'Shadow Step',can:c=>shayCells(c).length>0,run:async c=>{
+    const cell=await pickCell('Shadow Step: choose a safe square',shayCells(c));if(!cell)return false;pay(c);placeChar(c,cell.x,cell.y);return true;}}],
+  Bo:[{label:'Shove',can:c=>shoveT(c).length>0,run:async c=>{
+    const o=await pickChar('Shove: choose an adjacent enemy',shoveT(c));if(!o)return false;
+    pay(c);const dx=o.x-c.x,dy=o.y-c.y;
+    for(let i=0;i<2;i++){if(classify(o,o.x+dx,o.y+dy)==='free')placeChar(o,o.x+dx,o.y+dy);else break;}
+    log(`Bo shoves ${o.name}`);return true;}}],
+  Tessa:[{label:'Switcheroo',can:c=>near(c,3,o=>swappable(o)&&swapOK(c,o)).length>0,run:c=>swapAbility(c,near(c,3,o=>swappable(o)&&swapOK(c,o)),'swap with whom?')}],
+  Kai:[{label:'Pounce (tag at 3)',can:c=>tagTargets(c,3).length>0,run:c=>doTag(c,3,true)}],
+  Gio:[{label:'Freeze',can:c=>near(c,3,o=>o.team!==c.team).length>0,run:async c=>{
+    const o=await pickChar('Freeze: choose an enemy',near(c,3,o=>o.team!==c.team));if(!o)return false;pay(c);o.frozen=1;log(`${o.name} is frozen`);return true;}}],
+  Kit:[{label:'Long Pass (8)',can:c=>carrying(c)&&mates(c).length>0&&near(c,8,o=>o.team===c.team).length>0,run:c=>throwFlag(c,8,true)}],
+  Sam:[{label:'Slide (4)',can:c=>lineCells(c,4).size>0,run:c=>lineAbility(c,4)}],
+  Chloe:[{label:'Big Cheer',can:c=>true,run:async c=>{pay(c);near(c,3,o=>o.team===c.team).forEach(o=>o.cheer=true);log('Big Cheer: nearby teammates get +1 on Saves');return true;}}],
+  Clyde:[{label:'Banana Peel',can:c=>emptyIn(c,2).length>0,run:async c=>{
+    const cell=await pickCell('Banana Peel: choose a square',emptyIn(c,2));if(!cell)return false;pay(c);G.markers.push({type:'banana',x:cell.x,y:cell.y,team:c.team});return true;}}],
+  Maya:[{label:'Plot Twist',can:c=>G.chars.filter(o=>o.team===c.team&&alive(o)&&swappable(o)).length>1,run:async c=>{
+    const l=G.chars.filter(o=>o.team===c.team&&alive(o)&&swappable(o));
+    const a=await pickChar('Plot Twist: first teammate',l);if(!a)return false;
+    const b=await pickChar('Plot Twist: second teammate',l.filter(o=>o!==a&&swapOK(a,o)));if(!b)return false;
+    pay(c);swapPos(a,b);log(`${a.name} and ${b.name} swap`);return true;}}],
+  Brody:[{label:'Snow Wall',can:c=>emptyIn(c,2).length>0,run:async c=>{
+    const cell=await pickCell('Snow Wall: choose a square',emptyIn(c,2));if(!cell)return false;pay(c);G.markers.push({type:'wall',x:cell.x,y:cell.y,team:c.team});return true;}}],
+  Dex:[{label:'Double or Nothing',can:c=>true,run:async c=>{
+    pay(c);const heads=Math.random()<.5;
+    await specPop({label:'Special · Double or Nothing',disc:String(numOf('Dex')),title:heads?'Heads!':'Tails!',titleCol:heads?'#8FD08A':'#FF8C84',sub:heads?'Dex takes a second Sprint.':'Dex skips his next activation.',card:c,boxes:[{t:'Heads',d:'A second Sprint with re-rolled dice',col:'#8FD08A',dim:!heads},{t:'Tails',d:'Dex skips his next activation',col:'#FF8C84',dim:heads}]});
+    if(heads)G.pending=true;else{c.frozen=2;c.skipAct=2;}return true;}}],
+};
+const shayCells=c=>{const o=[];for(let x=0;x<W;x++)for(let y=0;y<H;y++)if(SAFE[y][x]&&dist(c,{x,y})<=6&&classify(c,x,y)==='free'&&zoneOK(c,x,y))o.push({x,y});return o;};
+const shoveT=c=>G.chars.filter(o=>o.team!==c.team&&alive(o)&&Math.abs(o.x-c.x)+Math.abs(o.y-c.y)===1&&swappable(o));
+const carrying=c=>G.flags[3-c.team].c===c.id;
+async function throwFlag(c,range,costs){
+  const o=await pickChar('Throw the flag to whom?',near(c,range,o=>o.team===c.team));if(!o)return false;
+  if(costs)pay(c);
+  G.flags[3-c.team].c=o.id;placeChar(o,o.x,o.y);log(`${c.name} throws the flag to ${o.name}`);return true;
+}
+function buildActions(c,ctx){
+  const A=[],tok=G.tokens[c.team]>=1,f=G.flags[3-c.team],mf=G.flags[c.team],rg=c.name==='Bo'?3:2;
+  const add=(id,label,off,okD,noD,run)=>A.push({id,label,off,d:off?noD:okD,run});
+  add('tag','Tag',!tagTargets(c,rg).length,`Tag an enemy within ${rg} squares`,`No enemy within ${rg} squares`,()=>doTag(c,rg,false));
+  add('free','Free teammate',!canFree(c),'Free a jailed teammate',teamChars(c.team).some(o=>o.jail)?(carrying(c)?'Not while carrying the flag':'Not at the jail'):'Nobody is jailed',()=>freeAction(c,false));
+  add('grab','Grab flag',!(f.c==null&&f.x===c.x&&f.y===c.y),`Pick up ${tn(3-c.team)}'s flag`,'Not on the enemy flag',async()=>{f.c=c.id;placeChar(c,c.x,c.y);log(`${c.name} grabs the ${tn(3-c.team)} flag!`);await capPop(c);return true;});
+  add('home','Send flag home',!(mf.c==null&&mf.x===c.x&&mf.y===c.y&&(mf.x!==HOME[c.team].x||mf.y!==HOME[c.team].y)),'Return your dropped flag to its base','Your flag is not here',async()=>{mf.x=HOME[c.team].x;mf.y=HOME[c.team].y;log(`${c.name} sends the flag home`);return true;});
+  if(c.name==='Kit')add('throw','Throw flag (4)',!(carrying(c)&&near(c,4,o=>o.team===c.team).length),'Free · throw the flag up to 4 squares','Needs the flag and a teammate in range',()=>throwFlag(c,4,false));
+  const effs=parseAb(rosterOf(c.name).active);
+  for(const [i,ab] of (ABIL[c.name]||[]).entries()){
+    const off=!tok||!ab.can(c);
+    add('ab'+i,ab.label,off,'1 token · '+(effs[i]?effs[i].e:'').replace(/\.$/,''),!tok?'Needs 1 token':'No valid target',()=>ab.run(c));
+  }
+  if(ctx.step)add('step','1-square step',lineCells(c,1,{noHurdle:true}).size===0,'Free · move 1 square','No square to step to',async()=>{
+    const m=lineCells(c,1,{noHurdle:true});const cell=await pickCell(`${c.name}: step to...`,[...m.values()]);if(!cell)return false;applyMove(c,m.get(cell.x+','+cell.y));return true;});
+  return A;
+}
+async function actionPhase(c,ctx={}){
+  G.sel=c.id;
+  if(ctx.slip)return 'done';
+  if(c.skipAct>0){log(`${c.name} sits out`);return 'done';}
+  for(;;){
+    const acts=buildActions(c,ctx);
+    const btns=acts.map(a=>({id:a.id,label:a.label,off:a.off,d:a.d}));
+    if(c.name==='Sam'&&ctx.dir&&!ctx.glided)btns.push({id:'glide',label:'Glide +1',d:'Free · slide 1 more square'});
+    btns.push({id:'skip',label:ctx.back?'Back':'No action'});
+    const r=await input(`${c.name} (${tn(c.team)}): choose an action`,btns);
+    if(r.btn==='skip')return ctx.back?'back':'skip';
+    if(r.btn==='glide'){
+      const r1=traverse(c,c,ctx.dir,1,0).find(q=>q.ok&&zoneOK(c,q.x,q.y));
+      if(r1){applyMove(c,r1);ctx.glided=true;log('Sam glides one more square');}else log('Sam cannot glide further');
+      ctx.glided=true;continue;
+    }
+    const a=acts.find(x=>x.id===r.btn);
+    if(a&&await a.run())return 'done';
+  }
+}
+
+// ---------- turns ----------
+const movers=(skip=[])=>teamChars(G.cur).filter(c=>alive(c)&&!c.frozen&&!skip.includes(c.id));
+function dexFix(c,idx){
+  if(c.name!=='Dex')return;
+  for(const i of idx)if(G.dice[i]===1){G.dice[i]=d6();log(`Dex re-rolls a 1: now ${G.dice[i]}`);}
+}
+async function chooseDest(c,m){
+  const r=await input(`${c.name}: choose a destination`,[{id:'stay',label:'Stay put'},{id:'back',label:'Back'}],[...m.values()]);
+  if(r.btn==='back')return 'back';
+  if(r.btn==='stay')return {};
+  return m.get(r.cell.x+','+r.cell.y);
+}
+async function sprint(){
+  G.sub=`Move ${G.moveNo||1} of 2 · Sprint`;
+  await rollDice();
+  for(;;){
+    G.sel=null;
+    const mv=movers();
+    if(!mv.length){log('Nobody can move');break;}
+    const btns=[0,1].map(i=>({id:'r'+i,label:`Re-roll ${G.dice[i]} (${mayaFree()?'free':'1 token'})`,off:G.tokens[G.cur]<1&&!mayaFree()}));
+    const r=await input(`Sprint (${G.dice[0]} & ${G.dice[1]}): choose a character`,btns,mv);
+    if(r.btn){await rerollDie(+r.btn[1]);continue;}
+    const c=charAt(r.cell.x,r.cell.y);G.sel=c.id;
+    dexFix(c,[0,1]);
+    const [d0,d1]=G.dice.map(v=>eff(c,v));
+    let assigns=[[d0,d1]];
+    if(d0!==d1){
+      const a=await ask(`${c.name}: which die goes across (left/right) and which goes up/down?`,[{id:'a',label:`${d0} across, ${d1} up/down`},{id:'b',label:`${d1} across, ${d0} up/down`},{id:'back',label:'Back'}]);
+      if(a==='back')continue;
+      assigns=[a==='a'?[d0,d1]:[d1,d0]];
+    }
+    const m=sprintCells(c,assigns);
+    if(!m.size)log(`${c.name} has no legal path`);
+    const res=m.size?await chooseDest(c,m):{};
+    if(res==='back')continue;
+    G.used=[1,1];
+    const slip=res.x!==undefined?applyMove(c,res):false;
+    if(slip)await slipPop(c,res.slip);
+    await actionPhase(c,{slip,moved:true,dir:res.dir});
+    break;
+  }
+  G.dice=null;G.sel=null;
+}
+async function teamPlay(){
+  G.sub=`Move ${G.moveNo||1} of 2 · Team Play`;
+  await rollDice();
+  const done=[];
+  for(let n=0;n<2;n++){
+    for(;;){
+      G.sel=null;
+      const mv=movers(done);
+      const free=[0,1].filter(i=>!G.used[i]);
+      if(!mv.length)break;
+      const btns=free.map(i=>({id:'r'+i,label:`Re-roll ${G.dice[i]} (${mayaFree()?'free':'1 token'})`,off:G.tokens[G.cur]<1&&!mayaFree()}));
+      const r=await input(`Team Play: character ${n+1} of 2 (dice ${free.map(i=>G.dice[i]).join(' / ')})`,btns,mv);
+      if(r.btn){await rerollDie(+r.btn[1]);continue;}
+      const c=charAt(r.cell.x,r.cell.y);G.sel=c.id;
+      let di=free[0];
+      if(free.length>1){
+        const a=await ask(`${c.name}: use which die?`,[...free.map(i=>({id:'d'+i,label:`Die ${G.dice[i]}`})),{id:'back',label:'Back'}]);
+        if(a==='back')continue;di=+a[1];
+      }
+      dexFix(c,[di]);
+      const m=lineCells(c,eff(c,G.dice[di]));
+      if(!m.size)log(`${c.name} has no legal path`);
+      const res=m.size?await chooseDest(c,m):{};
+      if(res==='back')continue;
+      G.used[di]=1;done.push(c.id);
+      const slip=res.x!==undefined?applyMove(c,res):false;
+      if(slip)await slipPop(c,res.slip);
+      await actionPhase(c,{slip,moved:true,dir:res.dir});
+      break;
+    }
+  }
+  G.dice=null;G.sel=null;
+}
+async function oneAction(){
+  G.sub=`Move ${G.moveNo||1} of 2 · Action`;
+  for(;;){
+    G.sel=null;
+    const r=await input('Action: choose a character',[{id:'back',label:'Back'}],teamChars(G.cur).filter(alive));
+    if(r.btn){G.sel=null;return false;}
+    const c=charAt(r.cell.x,r.cell.y);
+    if(await actionPhase(c,{step:true,back:true})==='done'){G.sel=null;return true;}
+  }
+}
+function zoneOver(t){
+  const h=HOME[t],l=teamChars(t).filter(c=>alive(c)&&c.exempt<=0&&dist(c,h)<=3);
+  return l.length>2?l:[];
+}
+function relocate(c){
+  for(let r=1;r<15;r++)for(let x=c.x-r;x<=c.x+r;x++)for(let y=c.y-r;y<=c.y+r;y++)
+    if(Math.max(Math.abs(x-c.x),Math.abs(y-c.y))===r&&x>=0&&y>=0&&x<W&&y<H&&classify(c,x,y)==='free'&&dist({x,y},HOME[c.team])>3){placeChar(c,x,y);return;}
+}
+async function finishTurn(){
+  const t=G.cur;
+  for(;;){
+    const over=zoneOver(t);if(!over.length)break;
+    const r=await input('Flag zone limit: only 2 of your characters may end a turn within 3 squares of your flag. Pick one to move out.',[],over);
+    relocate(charAt(r.cell.x,r.cell.y));
+  }
+  for(const c of teamChars(t)){if(c.frozen>0)c.frozen--;if(c.skipAct>0)c.skipAct--;if(c.exempt>0)c.exempt--;}
+  G.cur=3-t;
+}
+async function takeTurn(){
+  const t=G.cur;
+  teamChars(t).forEach(c=>c.cheer=false);
+  G.mayaFree=true;
+  G.markers=G.markers.filter(m=>!(m.type==='wall'&&m.team===t));
+  log(`— ${tn(t)}'s turn —`);
+  for(let n=1;n<=2;n++){
+    G.moveNo=n;G.sel=null;G.sub=`Move ${n} of 2`;
+    const btns=[{id:'sprint',label:'Sprint',d:'Roll the dice. One character moves.'},{id:'team',label:'Team Play',d:'Roll the dice. Two characters move.'},{id:'action',label:'Action',d:'Tag, use an ability, or take one step.'}];
+    if(n===2)btns.push({id:'end',label:'End turn'});
+    const r=await input(`${tn(t)}: choose move ${n} of 2`,btns);
+    if(r.btn==='end')break;
+    if(r.btn==='sprint')await sprint();
+    else if(r.btn==='team')await teamPlay();
+    else if(!await oneAction()){n--;continue;}
+    while(G.pending){G.pending=false;log('Dex: second Sprint');await sprint();}
+  }
+  await finishTurn();
+}
+async function run(){
+  try{for(;;)await takeTurn();}
+  catch(e){if(!(e instanceof GameOver))throw e;UI.prompt='';UI.buttons=[];UI.cells=null;render();}
+}
+
+// ---------- setup / draft ----------
+async function flipCoin(){
+  const n1=document.getElementById('n1'),n2=document.getElementById('n2');
+  if(n1&&n2)G.names={1:n1.value.trim()||'Blue',2:n2.value.trim()||'Red'};
+  G.drafter=1+rnd(2);
+  const A=G.drafter,B=3-A;
+  G.order=[A,B,B,A,A,B,B,A,A,B,B,A];
+  UI.coin={end:A===1?1800:1980};render();await sleep(3000);UI.coin=null;
+  G.phase='toss';render();
+}
+function startDraft(){G.phase='draft';render();}
+function newDraft(){newGame();flipCoin();}
+let toastT=null;
+function toast(t){UI.banner=t;render();clearTimeout(toastT);toastT=setTimeout(()=>{UI.banner='';render();},1100);}
+function pickDraft(i){
+  const seat=G.order[G.picks.length];
+  G.picks.push({i,seat});
+  if(G.picks.length===12){UI.banner='';startPlay();}
+  else{render();toast(`${ROSTER[i].name} #${numOf(ROSTER[i].name)} joins ${tn(seat)}`);}
+}
+
+function startPlay(){
+  G.chars=[];
+  for(const seat of [1,2]){
+    G.picks.filter(p=>p.seat===seat).forEach((p,k)=>{
+      const r=ROSTER[p.i];
+      const {x,y}=START[seat][k];
+      G.chars.push({id:G.chars.length,name:r.name,team:seat,save:r.save,x,y,jail:false,frozen:0,skipAct:0,exempt:0,cheer:false,tags:0});
+    });
+  }
+  G.phase='play';G.cur=3-G.drafter;G.sel=null;G.sub='';
+  log(`${tn(G.drafter)} drafted first, so ${tn(G.cur)} takes the first turn.`);
+  render();run();
+}
+
+// ---------- rendering ----------
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const TC={1:'#5B94FF',2:'#FF6459'};
+const NUM={Zoe:100,Danny:13,Rosie:33,Hudson:23,Gabe:4,Scarlett:8,Cal:10,Shay:66,Bo:50,Tessa:21,Mia:41,Kai:29,Gio:1,Kit:3,Sam:87,Chloe:16,Clyde:22,Maya:14,Brody:75,Dex:27};
+const numOf=n=>NUM[n]||0;
+const rosterOf=n=>ROSTER.find(r=>r.name===n);
+const flagSVG=(col,cls='')=>`<svg class="${cls}" viewBox="0 0 20 24"><rect x="3" y="2" width="2.2" height="20" fill="#F1EDE4" stroke="#05080F" stroke-width="1"/><path d="M5.2 3 L18 7 L5.2 12Z" fill="${col}" stroke="#05080F" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+const TREE='<svg class="tree" viewBox="0 0 20 20"><path d="M10 1.5 L18 15 H2Z" fill="#35B36A" stroke="#05080F" stroke-width="1.6" stroke-linejoin="round"/><rect x="8.6" y="15" width="2.8" height="3.5" fill="#8A5A2B" stroke="#05080F" stroke-width="1.2"/></svg>';
+const BANANA='<svg class="mk" viewBox="0 0 20 20"><path d="M3 5 Q9 19 18 7 Q10 13 3 5Z" fill="#FFD54A" stroke="#05080F" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+const pipFace=v=>Array.from({length:9},(_,i)=>`<i class="${(PIPS[v]||[]).includes(i)?'on':''}"></i>`).join('');
+const parseAb=t=>t.split(' | ').map(p=>{const i=p.indexOf(':');return{n:p.slice(0,i),e:p.slice(i+1).trim()};});
+const shield=sv=>`<div class="shield"><svg viewBox="0 0 46 54" role="img" aria-label="Save ${sv} plus"><path d="M23 3 L42 9 V28 C42 40 33 48 23 52 C13 48 4 40 4 28 V9Z" fill="#FFF8E7" stroke="#1A1A2E" stroke-width="3" stroke-linejoin="round"/><text x="23" y="29" text-anchor="middle" font-size="19" font-weight="800" fill="#1A1A2E">${sv}+</text><text x="23" y="41" text-anchor="middle" font-size="9" font-weight="800" fill="#1A1A2E">SAVE</text></svg></div>`;
+function pennant(r,o={}){
+  const team=o.team||0,size=o.size||'sm',cl=!!o.clamp,st=o.state||'';
+  let acts=parseAb(r.active).map(a=>({n:a.n,e:a.e.replace(/\s*\(reaction\)/,''),cost:/reaction/.test(a.e)?'reaction':'1 token'}));
+  if(cl)acts=acts.slice(0,1);
+  const pass=parseAb(r.passive);
+  const tag=st==='jail'?' · IN JAIL':st==='frozen'?' · FROZEN':'';
+  return `<div class="pn ${size} ${cl?'cl':''} t${team} ${st} ${o.sel?'sel':''}"><div class="pn-in"><div class="pn-tab"><div class="pn-nm"><span class="pn-name">${r.name}</span><span class="pn-type">${r.type}${tag}</span></div><span class="pn-num">${numOf(r.name)}</span></div>
+  <div class="pn-body">${acts.map(a=>`<div class="pn-act"><b>${esc(a.n)}</b><i>${a.cost}</i><div class="pn-e">${esc(a.e)}</div></div>`).join('')}
+  <div class="pn-pas">${shield(r.save)}<div class="pn-pt">${pass.map(p=>`<div class="pn-p"><b>${esc(p.n)}</b> ${esc(p.e)}</div>`).join('')}</div></div></div></div></div>`;
+}
+const pcard=(c,o={})=>pennant(rosterOf(c.name),{team:c.team,state:c.jail?'jail':c.frozen?'frozen':'',...o});
+const chipH=t=>`<span class="chip t${t}">${esc(tn(t))}</span>`;
+const pipsH=t=>`<span class="pipsr">${Array.from({length:cap(t)},(_,i)=>`<i class="${i<G.tokens[t]?'on':''}"></i>`).join('')}</span>`;
+
+function boardHTML(){
+  let cells='';
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const cl=['c','l'+terr(x)];if((x+y)%2)cl.push('k');if(x===14)cl.push('x14');
+    if(SAFE[y][x])cl.push('safe');
+    if(START[1].some(p=>p.x===x&&p.y===y)||START[2].some(p=>p.x===x&&p.y===y))cl.push('st');
+    const t=T[y][x];if(t==='mud'||t==='slide')cl.push(t);
+    const isJ=JAIL[1].some(j=>j.x===x&&j.y===y)?1:JAIL[2].some(j=>j.x===x&&j.y===y)?2:0;
+    if(isJ)cl.push('jail');
+    if(wallAt(x,y))cl.push('wall');
+    if(UI.cells&&UI.cells.has(x+','+y))cl.push('hl');
+    let inner='';
+    if(t==='tree')inner=TREE;else if(t==='slide')inner='»';
+    if(isJ){const n=teamChars(isJ).filter(c=>c.jail).length;if(n&&x===JAIL[isJ][0].x&&y===JAIL[isJ][0].y)inner=`<span class="cnt">${n}</span>`;}
+    if(bananaAt(x,y))inner=BANANA;
+    const pc=charAt(x,y);
+    if(pc){
+      const carry=[1,2].find(t2=>G.flags[t2].c===pc.id);
+      const n=numOf(pc.name);
+      inner=`<div class="p t${pc.team} ${String(n).length>2?'l3':''} ${G.sel===pc.id?'sel':''}" title="${pc.name} (${pc.save}+)">${n}${carry?flagSVG(TC[carry],'badge'):''}${pc.frozen?'<span class="frz">*</span>':''}</div>`;
+    }
+    for(const t2 of [1,2]){const f=G.flags[t2];if(f.c==null&&f.x===x&&f.y===y)inner+=flagSVG(TC[t2],'flag');}
+    cells+=`<div class="${cl.join(' ')}" data-x="${x}" data-y="${y}">${inner}</div>`;
+  }
+  return cells;
+}
+const btnKind=b=>b.k||(/^(back|skip|stay|end|no|n)$/.test(b.id)?'ghost':/^(ok|y|f\d+)$/.test(b.id)?'pri':'');
+const btnH=b=>`<button class="btn ${btnKind(b)}" data-b="${b.id}" ${b.off?'disabled':''}>${esc(b.label)}</button>`;
+const tileH=b=>`<button class="tile" data-b="${b.id}" ${b.off?'disabled':''}><span class="tn">${esc(b.label)}</span><span class="td">${esc(b.d)}</span></button>`;
+
+
+function howHTML(){
+  const steps=[
+    ['1','Pick two moves','Each turn you get 2 moves. Every move is a Sprint, a Team Play or an Action. You can end your turn after the first move.'],
+    ['2','Roll and move','Sprint: roll two dice. One character goes across by one die and up or down by the other. Team Play: two characters each move in a straight line by one die. No diagonals, and no passing through enemies or trees.'],
+    ['3','Act','After moving, that character takes one action: tag an enemy, free a teammate, grab or send home a flag, or use an ability for 1 token.']
+  ].map(([i,t,d])=>`<div class="hstep"><i>${i}</i><b>${t}</b><span>${d}</span></div>`).join('');
+  const rules=[
+    ['Tag and Save','#FF8C84','From your own side, tag an enemy on your side within 2 squares. Diagonals count and trees block. They roll a die and need their Save number or higher, or 1 more if adjacent. A miss sends them to jail and earns you a token.'],
+    ['Jail','#FFD54A','Tagged characters wait in the jail in enemy land. End a move on the jail and take Free. The rescuer and the freed character both teleport to base. Rosie can free from 1 square outside.'],
+    ['Flag zone','#5B94FF','Only 2 of your characters may end a turn within 3 squares of your flag. Characters teleported home are exempt for a turn.'],
+    ['Tokens','#8FD08A','You start with 2 and can hold 3. Spend one on an active ability or to re-roll a die. Passives are always on.'],
+    ['Terrain','#B4C2D8','Mud ends your move. A slide pushes you 2 more squares. Dotted squares are safe from tags. The flag carrier moves 1 less on each die.']
+  ].map(([t,c,d])=>`<div class="hrule"><b style="color:${c}">${t}</b><span>${d}</span></div>`).join('');
+  return `<div class="ov" data-act="howclose"><div class="howp" role="dialog" aria-label="How to play"><div class="hh"><h2>How to play</h2><button class="btn pri" style="min-height:52px;padding:0 32px;font-size:16px" data-act="howclose">Back to the game</button></div>
+  <div class="goal"><b>The goal</b><span>Grab the other team's flag and carry it back to one of your starting squares. You also win if all 6 enemy characters are in jail.</span></div>
+  <div class="hsteps">${steps}</div><div class="hrules">${rules}</div></div></div>`;
+}
+function screenTitle(){
+  G.rules=G.rules||{stack:true};
+  const prev=boardHTML();
+  return `<div class="title"><div class="bgb"><div id="board">${prev}</div></div><div class="wash"></div>
+  <div class="big"><h1><span style="color:var(--blue)">Flag</span> <span style="color:var(--red)">Fight</span></h1><div class="tag">The playground game, with powers.</div></div>
+  <div class="newgame"><div class="nt">New game</div>
+   <div style="display:flex;flex-direction:column;gap:8px"><label for="n1">Player 1 (Blue, left)</label><input type="text" id="n1" value="${esc(tn(1))}" style="border-color:var(--blue)" maxlength="14"><label for="n2">Player 2 (Red, right)</label><input type="text" id="n2" value="${esc(tn(2))}" style="border-color:var(--red)" maxlength="14"></div>
+   <label class="chk"><input type="checkbox" id="rstack" ${G.rules.stack?'checked':''}> Save bonuses stack. Off means only the biggest bonus counts.</label>
+   <button class="btn gold" onclick="G.rules.stack=document.getElementById('rstack').checked;flipCoin()">Flip the coin</button>
+   <button class="btn ghost" data-act="howopen">How to play</button></div></div>${UI.how?howHTML():''}`;
+}
+function screenToss(){
+  const A=G.drafter,B=3-A;
+  return `<div class="toss t${A}"><div class="coin">${esc(tn(A)[0].toUpperCase())}</div><span style="font-weight:800;letter-spacing:.12em;font-size:20px;position:relative">COIN FLIP RESULT</span>
+  <div class="res" style="font-size:min(300px,${Math.floor(1100/Math.max(5,tn(A).length))}px,${Math.floor(170/Math.max(5,tn(A).length))}vw)">${esc(tn(A))}<br>first</div>
+  <div style="display:flex;align-items:center;gap:24px;margin-top:30px;flex-wrap:wrap;position:relative"><button class="btn" onclick="startDraft()">Start the draft</button><span style="font-weight:700;font-size:18px">${esc(tn(B))} picks the next two.</span></div></div>`;
+}
+function screenDraft(){
+  const n=G.picks.length,seat=G.order[n];
+  let run=0;for(let k=n;k<12&&G.order[k]===seat;k++)run++;
+  const next=G.order[n+run];
+  let run2=0;for(let k=n+run;k<12&&G.order[k]===next;k++)run2++;
+  const order=G.order.map((s,i)=>{const done=i<n,cur=i===n,col=TC[s];return `<span style="${done?`background:${col};color:var(--night);border-color:${col}`:cur?'color:var(--gold);border-color:var(--gold)':''}">${esc(tn(s)[0].toUpperCase())}</span>`;}).join('');
+  const slots=t=>{const l=G.picks.filter(p=>p.seat===t);return Array.from({length:6},(_,i)=>l[i]?`<span class="slot full" style="background:${TC[t]}">${esc(ROSTER[l[i].i].name.slice(0,2))}</span>`:'<span class="slot"></span>').join('');};
+  const cnt=t=>G.picks.filter(p=>p.seat===t).length;
+  const cards=ROSTER.map((r,i)=>{const p=G.picks.find(p=>p.i===i);return `<div>${pennant(r,{team:p?p.seat:0,size:'sm'})}${p?`<div class="took t${p.seat}">Drafted by ${esc(tn(p.seat))}</div>`:`<button class="dbtn t${seat}" onclick="pickDraft(${i})">Draft for ${esc(tn(seat))}</button>`}</div>`;}).join('');
+  return `<div class="wrap"><div class="dhead"><div><div class="lbl">Snake draft · ${esc(tn(G.drafter))} won the flip</div><h1>Draft your squad</h1></div><div class="order">${order}</div></div>
+  <div class="drow"><div class="slotp"><div style="display:flex;align-items:center;gap:10px">${chipH(1)}<span class="lbl" style="text-transform:none;letter-spacing:0;font-size:13px">${cnt(1)} of 6 drafted</span></div><div class="slots">${slots(1)}</div></div>
+  <div class="pickp">${chipH(seat)}<div class="big">Pick ${run} more character${run>1?'s':''}</div><span style="color:#D9C98A;font-size:13px">${next?`Then ${esc(tn(next))} picks ${run2}.`:'Last pick.'}</span></div>
+  <div class="slotp r"><div style="display:flex;align-items:center;gap:10px"><span class="lbl" style="text-transform:none;letter-spacing:0;font-size:13px">${cnt(2)} of 6 drafted</span>${chipH(2)}</div><div class="slots">${slots(2)}</div></div></div>
+  <div class="pool">${cards}</div></div>`;
+}
+function savePopHTML(p){
+  const thr=Math.max(1,p.need-p.mod);
+  const meter=[1,2,3,4,5,6].map(n=>`<div class="mt ${n>=thr?'ok':''} ${p.val===n&&p.stage!=='pre'?'cur':''}">${n}</div>`).join('');
+  const die=p.stage==='pre'?'<div class="bigdie q">?</div>':`<div class="bigdie ${p.stage==='roll'?'rolling':''}">${pipFace(p.val)}</div>`;
+  const stamp=p.stage==='result'?`<span class="stamp ${p.ok?'sav':'tag'}">${p.ok?'SAVED':'TAGGED'}</span>`:'';
+  const btns=UI.buttons.map(btnH).join('');
+  return `<div class="ov"><div class="pop"><div class="ph">${chipH(p.tagger.team)}<span class="pt">${esc(p.tagger.name)} tags ${esc(p.target.name)}</span><span style="color:var(--muted);font-size:14px;flex:1">${esc(tn(p.target.team))} rolls a Saving Throw</span></div>
+  <div class="pgrid"><div>${pcard(p.tagger,{size:'sm'})}</div>
+  <div class="pc3"><span class="lbl">${esc(p.target.name)} saves on ${thr>6?'a miracle':thr+' or more'}</span>${die}<div style="width:100%"><div class="meter">${meter}</div><div class="mlbl"><span>Tagged</span><span>${p.stage==='result'||p.stage==='roll'?'Rolled '+p.val:''}</span><span>Saved</span></div></div>${stamp}</div>
+  <div>${pcard(p.target,{size:'sm'})}</div></div>
+  <div class="pfoot"><span class="msg">${esc(p.msg||'')}</span>${btns}</div></div></div>`;
+}
+function specPopHTML(p){
+  if(UI.peek)return `<button class="peekback" data-act="peek">Back to the popup</button>`;
+  const boxes=(p.boxes||[]).map(b=>`<div class="sbox ${b.dim?'dim':''}" style="border-color:${b.col}"><b style="color:${b.col}">${esc(b.t)}</b><br><span style="font-size:14px;color:var(--soft)">${esc(b.d)}</span></div>`).join('');
+  return `<div class="ov"><div class="pop spec"><button class="eye" aria-label="Peek at the map" data-act="peek"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#EEF2F8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12Z"/><circle cx="12" cy="12" r="3.2"/></svg></button>
+  <div>${p.card?pcard(p.card,{size:'sm',clamp:true,sel:true}):''}</div>
+  <div class="pc3"><span class="lbl">${esc(p.label)}</span><div class="disc" style="${p.discBg?'background:'+p.discBg:''}">${esc(p.disc)}</div><span style="font-family:var(--disp);font-weight:800;font-size:40px;color:${p.titleCol||'var(--text)'}">${esc(p.title||'')}</span><span style="color:var(--soft);font-size:14px;text-align:center">${esc(p.sub||'')}</span></div>
+  <div style="display:flex;flex-direction:column;gap:10px">${boxes}${UI.buttons.map(btnH).join('')}</div></div></div>`;
+}
+function capPopHTML(p){
+  return `<div class="capbar"><span class="ct">${esc(p.title)}</span><span class="cx">${esc(p.text)}</span>${UI.buttons.map(btnH).join('')}</div>`;
+}
+function jailPopHTML(p){
+  const caps=p.caps.map(id=>{const c=ch(id),b=UI.buttons.find(x=>x.id==='f'+id);return `<div class="cap1"><div>${pcard(c,{size:'sm',clamp:true})}</div>${b?btnH({...b,label:'Free'}):''}</div>`;}).join('');
+  const rest=UI.buttons.filter(b=>!/^f\d+$/.test(b.id)).map(btnH).join('');
+  return `<div class="drawer"><div class="dt">In jail</div><span class="lbl">${esc(tn(p.c.team))} · ${p.caps.length} of 6</span>${caps}${rest}</div>`;
+}
+function popupHTML(){
+  const p=UI.popup;if(!p)return '';
+  if(p.type==='save')return savePopHTML(p);
+  if(p.type==='spec')return specPopHTML(p);
+  if(p.type==='cap')return capPopHTML(p);
+  if(p.type==='jail')return jailPopHTML(p);
+  return '';
+}
+function overHTML(){
+  const o=G.over,t=o.team,cols=[TC[t],'#FFD54A','#F6F3EA',TC[3-t]];
+  const cf=Array.from({length:36},(_,i)=>{const x=(i*97+41)%100,y=(i*53+17)%94,r=(i*37)%180,w=10+(i%4)*4;return `<i class="cf" style="left:${x}%;top:${y}%;width:${w}px;height:${Math.round(w*.45)}px;background:${cols[i%4]};transform:rotate(${r}deg)"></i>`;}).join('');
+  const mvp=ch(o.mvp);
+  const sq=teamChars(t).map(c=>`<div class="sq"><span style="border-color:${c.id===o.mvp?'#FFD54A':'transparent'}">${numOf(c.name)}</span>${esc(c.name)}</div>`).join('');
+  return `<div class="over t${t}">${cf}<div class="in"><div class="l"><span class="go">Game over</span><span class="wins">${esc(tn(t))} wins</span><span class="why">${esc(o.why)}</span>
+  <div class="acts"><button class="btn gold" onclick="G=null;newGame();render()">Play again</button><button class="btn g2" onclick="newDraft()">New draft</button></div>
+  <div style="margin-top:20px;display:flex;flex-direction:column;gap:10px"><span class="go">The winning squad</span><div class="squad">${sq}</div></div></div>
+  <div class="mvp"><span class="bdg">MVP</span>${pcard(mvp,{size:'lg',clamp:false,state:''})}</div></div></div>`;
+}
+function screenPlay(){
+  const t=G.cur;
+  const dice=G.dice?`<div class="dicerow">${G.dice.map((v,i)=>`<div class="die sm ${G.used[i]?'used':''} ${UI.rolling&&UI.rolling[i]?'rolling':''} ${UI.landed&&UI.landed[i]?'land':''}" title="${v}">${pipFace(v)}</div>`).join('')}</div>`:'';
+  const rail=s=>`<div class="rail"><div class="rh">${s===1?`${chipH(1)}${pipsH(1)}<span class="grow"></span><span>Jailed ${teamChars(1).filter(c=>c.jail).length}/6</span>`:`<span>Jailed ${teamChars(2).filter(c=>c.jail).length}/6</span><span class="grow"></span>${pipsH(2)}${chipH(2)}`}</div>${teamChars(s).map(c=>pcard(c,{size:'sm',clamp:true,sel:G.sel===c.id})).join('')}</div>`;
+  const sc=G.sel!=null?ch(G.sel):null;
+  const left=sc?pcard(sc,{size:'sm',clamp:true}):'<div class="nosel">No character picked yet. Tap one on the board.</div>';
+  const tilesB=UI.buttons.filter(b=>b.d),plainB=UI.buttons.filter(b=>!b.d);
+  const dock=`<div class="dock ${UI.resolve?'live':''}"><div class="dl">${left}</div><div class="dr"><div class="dprompt">${esc(UI.prompt||(G.over?'Game over':'...'))}</div>${tilesB.length?`<div class="tiles">${tilesB.map(tileH).join('')}</div>`:''}<div class="dbtns">${plainB.map(btnH).join('')}</div></div></div>`;
+  return `${G.over?overHTML():''}<div class="wrap"><div class="tbar">${chipH(t)}<span class="lbl">${esc(G.sub||'')}</span><span class="grow"></span>${dice}</div>
+  <div class="play">${rail(1)}<div class="center"><div class="boardwrap"><div id="board">${boardHTML()}</div></div>${dock}
+  <div class="legend"><span>Safe squares have a dot</span><span>Mud stops you</span><span>» Slide +2 squares</span><span>Ringed squares are starting squares</span><span>Gray squares are jail</span></div>
+  <div class="logp"><h3>Game log</h3><div class="logs">${G.log.map(l=>`<div>${esc(l)}</div>`).join('')}</div></div></div>${rail(2)}</div></div>${popupHTML()}`;
+}
+function render(){
+  if(window.__fast)return;
+  const app=document.getElementById('app');
+  document.getElementById('fx').innerHTML=UI.coin?`<div class="coinov"><div class="coinwrap"><div class="coin3d" style="--end:${UI.coin.end}deg"><div class="cface f">${esc(tn(1)[0].toUpperCase())}</div><div class="cface b">${esc(tn(2)[0].toUpperCase())}</div></div></div><div class="coinshadow"></div><div class="coincap">Flipping the coin...</div></div>`:(UI.banner?`<div class="banner">${esc(UI.banner)}</div>`:'');
+  if(G.phase==='setup'){app.innerHTML=screenTitle();return;}
+  if(G.phase==='toss'){app.innerHTML=screenToss();return;}
+  if(G.phase==='draft'){app.innerHTML=screenDraft();return;}
+  app.innerHTML=screenPlay();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&UI.how){UI.how=false;render();}});
+document.addEventListener('click',e=>{
+  if(e.target.closest('[data-act="howopen"]')){UI.how=true;render();return;}
+  const hc=e.target.closest('[data-act="howclose"]');
+  if(hc&&(hc.tagName==='BUTTON'||e.target===hc)){UI.how=false;render();return;}
+  if(e.target.closest('[data-act="peek"]')){UI.peek=!UI.peek;render();return;}
+  const b=e.target.closest('[data-b]');
+  if(b&&UI.resolve){answer({btn:b.dataset.b});return;}
+  const c=e.target.closest('#board [data-x]');
+  if(c&&UI.resolve&&UI.cells&&UI.cells.has(c.dataset.x+','+c.dataset.y))answer({cell:{x:+c.dataset.x,y:+c.dataset.y}});
+});
+newGame();
+render();
+</script>
+</body>
+</html>
