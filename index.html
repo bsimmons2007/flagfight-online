@@ -350,6 +350,22 @@ body[data-art="1"] .c.jail{background-color:rgb(75 80 96 / .3)}
 body[data-cards="1"] .pool{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
 body[data-cards="1"] .pgrid{grid-template-columns:1fr minmax(220px,300px) 1fr}
 body[data-cards="1"] .tgrid{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.rbreak{position:fixed;inset:0;z-index:30;overflow:auto;color:var(--night);display:flex;align-items:flex-end;padding:clamp(24px,6vw,90px)}
+.rbreak.t1{background:var(--blue)}.rbreak.t2{background:var(--red)}
+.rbreak::before{content:'';position:absolute;right:-12vw;top:-14vw;width:48vw;height:48vw;border-radius:50%;background:var(--gold);border:1.3vw solid var(--ink)}
+.rb-in{position:relative;display:flex;flex-direction:column;gap:clamp(10px,2vw,22px);width:100%}
+.rb-k{font-weight:800;letter-spacing:.12em;font-size:clamp(14px,1.6vw,20px);text-transform:uppercase}
+.rb-big{font-family:var(--disp);font-weight:800;font-size:clamp(70px,15vw,230px);line-height:.85;letter-spacing:-.03em;text-transform:uppercase}
+.rb-score{display:flex;align-items:center;gap:clamp(12px,2vw,28px);flex-wrap:wrap}
+.rb-team{display:flex;align-items:center;gap:14px}.rb-team b{font-family:var(--disp);font-size:clamp(22px,3vw,40px)}
+.rb-dash{font-weight:800;font-size:clamp(16px,2vw,26px);text-transform:uppercase;letter-spacing:.1em}
+.rpips{display:flex;gap:10px;font-style:normal}
+.rpips i{width:clamp(26px,3.2vw,46px);height:clamp(26px,3.2vw,46px);border-radius:50%;border:.5vw solid var(--night);background:transparent}
+.rpips i.on{background:var(--night)}
+.rb-why{font-size:clamp(16px,1.8vw,24px);font-weight:700;max-width:900px}
+.rb-foot{display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-top:8px}
+.rb-foot span{font-weight:700;font-size:clamp(15px,1.5vw,19px)}
+.rbtn{background:var(--night);color:#fff;border:none;min-height:64px;padding:0 52px;border-radius:14px;font-size:19px;font-weight:800}
 @media(prefers-reduced-motion:reduce){*{animation-duration:0s!important;transition-duration:0s!important}}
 </style>
 </head>
@@ -604,7 +620,7 @@ async function roundBreak(e){
   UI.popup={type:'round',team:e.team,why:e.why};
   await input('',[{id:'ok',label:`Start round ${G.round+1}`,k:'pri'}]);
   UI.popup=null;
-  resetRound(conceded);
+  resetRound(conceded);render();
 }
 function win(team,why,mvp){
   if(mvp==null)mvp=teamChars(team).slice().sort((a,b)=>(b.tags||0)-(a.tags||0))[0].id;
@@ -1441,7 +1457,7 @@ function aiDraftHook(){
   aiDraftT=setTimeout(()=>{if(G.phase==='draft'&&G.picks.length===n)pickDraft(aiDraftPick(seat));},1100);
 }
 
-const aiBusy=()=>!!(G&&G.ai&&G.phase==='play'&&!G.over&&G.ai[aiActor()]);
+const aiBusy=()=>!!(G&&G.ai&&G.phase==='play'&&!G.over&&G.ai[aiActor()]&&!(UI.popup&&['round','cap','spec'].includes(UI.popup.type)));
 
 // ---------- rendering ----------
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -1600,8 +1616,13 @@ function jailPopHTML(p){
   return `<div class="drawer"><div class="dt">In jail</div><span class="lbl">${esc(tn(p.c.team))} · ${p.caps.length} of 6</span>${caps}${rest}</div>`;
 }
 function roundPopHTML(p){
-  const t=p.team,o=3-t;
-  return `<div class="ov"><div class="pop rpop"><span class="lbl">Round ${G.round} over</span><span class="rt" style="color:${TC[t]}">Point to ${esc(tn(t))}</span><span class="rs">${esc(tn(1))} ${G.score[1]} – ${G.score[2]} ${esc(tn(2))}</span><span class="rw">${esc(p.why)}.</span><span class="rw">First to 2 points wins. ${esc(tn(o))} goes first in round ${G.round+1}.</span>${UI.buttons.map(btnH).join('')}</div></div>`;
+  const t=p.team,o=3-t,sc=G.score;
+  const pips=n=>Array.from({length:2},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('');
+  const b=UI.buttons[0]||{id:'ok',label:'Continue'};
+  return `<div class="rbreak t${t}"><div class="rb-in"><span class="rb-k">Round ${G.round} over</span><span class="rb-big" style="font-size:min(230px,${Math.floor(1300/Math.max(6,tn(t).length))}px,${Math.floor(190/Math.max(6,tn(t).length))}vw)">Point<br>${esc(tn(t))}</span>
+  <div class="rb-score"><span class="rb-team"><b>${esc(tn(1))}</b><em class="rpips">${pips(sc[1])}</em></span><span class="rb-dash">to</span><span class="rb-team"><em class="rpips">${pips(sc[2])}</em><b>${esc(tn(2))}</b></span></div>
+  <span class="rb-why">${esc(p.why)}.</span>
+  <div class="rb-foot"><button class="rbtn" data-b="${b.id}">${esc(b.label)}</button><span>${esc(tn(o))} goes first. First to 2 points wins.</span></div></div></div>`;
 }
 function popupHTML(){
   const p=UI.popup;if(!p)return '';
