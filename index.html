@@ -959,7 +959,11 @@ function startPlay(){
 }
 
 // ---------- computer player ----------
-const AIL={easy:{noise:34,abil:0,risk:.35,react:.5,reroll:0},normal:{noise:9,abil:1,risk:1,react:.9,reroll:1},hard:{noise:1.5,abil:1,risk:1.2,react:1,reroll:1}};
+const AIL={easy:{noise:34,abil:0,risk:.35,react:.5,reroll:0},normal:{noise:9,abil:1,risk:1,react:.9,reroll:1,tie:2},hard1:{noise:1.5,abil:1,risk:1.2,react:1,reroll:1},hard:{noise:1.5,abil:1,risk:1.2,react:1,reroll:1,v2:1,tie:1.2,dtie:1.5,vary:1}};
+const AW0={carry:9,win:0,a0:3.2,a1:1.2,flagOn:70,c0:5,c1:2,defM:1.6,drop:4,tokMy:7,tokOpp:5,jail:42,riskC:170,riskO:26,potF:.22,oppC:60,oppO:10,oppMult:1,goal:0,resc:0,imp:0};
+const AW=Object.assign({},AW0,{win:2000,oppMult:1,resc:.5,imp:.03,goal:0,look:1});
+function aiPers(t){G.aiP=G.aiP||{};return G.aiP[t]||(G.aiP[t]={a:.95+Math.random()*.1,d:.95+Math.random()*.1,team:.5+Math.random()*.2});}
+let AWc=AW0;
 const aiLvl=t=>AIL[(G.ai&&G.ai[t])]||AIL.normal;
 const mdist=(c,x,y)=>Math.abs(c.x-x)+Math.abs(c.y-y);
 const nearStart=(t,c)=>Math.min(...START[t].map(p=>Math.abs(c.x-p.x)+Math.abs(c.y-p.y)));
@@ -969,13 +973,13 @@ function aiRisk(t,myC,thC){
   let total=0;
   for(const c of myC){
     if(terr(c.x)===t||isSafe(c))continue;
-    const w=carrying(c)?170:26;
+    const w=carrying(c)?AWc.riskC:AWc.riskO;
     let p=1;
     for(const e of thC){
       if(terr(e.x)===t||e.frozen)continue;
       const d=dist(e,c),rg=rangeOf(e);
       if(d<=rg&&los(e,c)&&!(c.name==='Shay'&&d>1))p*=1-failP(c,d);
-      else if(d<=rg+5)p*=1-failP(c,Math.max(2,d))*.22;
+      else if(d<=rg+5)p*=1-failP(c,Math.max(2,d))*AWc.potF;
     }
     total+=w*(1-p);
   }
@@ -985,7 +989,7 @@ function aiOpp(t,myC,thC,ecar){
   let total=0;
   for(const e of thC){
     if(terr(e.x)!==t||isSafe(e))continue;
-    const w=e===ecar?60:10;
+    const w=e===ecar?AWc.oppC:AWc.oppO;
     let p=1;
     for(const m of myC){
       if(terr(m.x)!==t)continue;
@@ -998,33 +1002,65 @@ function aiOpp(t,myC,thC,ecar){
 }
 function aiEval(t){
   const o=3-t,L=aiLvl(t);
+  const W=AWc=L.v2?AW:AW0;
+  const im=W.imp?Math.max(0,(G.stats?G.stats.turns:0)-25)*W.imp:0;
   const myC=teamChars(t).filter(alive),thC=teamChars(o).filter(alive);
   const ef=G.flags[o],mf=G.flags[t];
-  let s=(teamChars(o).length-thC.length)*42-(teamChars(t).length-myC.length)*42;
+  let s=(teamChars(o).length-thC.length)*W.jail-(teamChars(t).length-myC.length)*W.jail;
   const mine=ef.c!=null?ch(ef.c):null;
-  if(mine&&mine.team===t){s+=210-9*nearStart(t,mine);}
-  else{
+  const iCarry=!!(mine&&mine.team===t);
+  if(iCarry){
+    s+=210-W.carry*nearStart(t,mine);
+    if(W.win&&nearStart(t,mine)===0)s+=W.win;
+  }else{
     const ds=myC.map(c=>mdist(c,ef.x,ef.y)).sort((a,b)=>a-b);
-    s-=(ds.length?ds[0]:30)*3.2+(ds.length>1?ds[1]:30)*1.2;
-    if(ds.length&&ds[0]===0)s+=70;
+    s-=((ds.length?ds[0]:30)*W.a0+(ds.length>1?ds[1]:30)*W.a1)*(1+im);
+    if(ds.length&&ds[0]===0)s+=W.flagOn;
   }
   const ecar=mf.c!=null?ch(mf.c):null;
-  if(ecar&&ecar.team===o){
-    s-=210-9*nearStart(o,ecar);
+  const theyCarry=!!(ecar&&ecar.team===o);
+  if(theyCarry){
+    s-=210-W.carry*nearStart(o,ecar);
     const dd=myC.map(c=>dist(c,ecar)).sort((a,b)=>a-b);
-    s-=(dd.length?dd[0]:20)*5+(dd.length>1?dd[1]:20)*2;
+    s-=(dd.length?dd[0]:20)*W.c0+(dd.length>1?dd[1]:20)*W.c1;
   }else{
     const m=Math.min(30,...thC.map(c=>mdist(c,mf.x,mf.y)));
-    s+=m*1.6;
+    s+=m*W.defM;
     if(mf.c==null&&(mf.x!==HOME[t].x||mf.y!==HOME[t].y)){
       const dd=Math.min(30,...myC.map(c=>mdist(c,mf.x,mf.y)));
-      s-=dd*4+25;
+      s-=dd*W.drop+25;
     }
   }
-  s+=G.tokens[t]*7-G.tokens[o]*5;
-  s-=aiRisk(t,myC,thC)*L.risk;
-  s+=aiOpp(t,myC,thC,ecar&&ecar.team===o?ecar:null);
+  s+=G.tokens[t]*W.tokMy-G.tokens[o]*W.tokOpp;
+  s-=aiRisk(t,myC,thC)*L.risk/(1+im);
+  s+=aiOpp(t,myC,thC,theyCarry?ecar:null)*W.oppMult;
+  if(W.goal){
+    const intr=thC.filter(e=>terr(e.x)===t&&!e.frozen);
+    if(intr.length&&!theyCarry){
+      const guards=myC.filter(c=>!carrying(c));
+      for(const e of intr){const dd=Math.min(9,...guards.map(c=>dist(c,e)));s-=dd*W.goal;}
+    }
+  }
+  const jl=teamChars(t).length-myC.length;
+  if(W.resc&&jl>0&&!iCarry){
+    const free=myC.filter(c=>!carrying(c));
+    let dj=25;for(const c of free)for(const j of JAIL[t])dj=Math.min(dj,Math.abs(c.x-j.x)+Math.abs(c.y-j.y));
+    s-=Math.min(dj,25)*W.resc*jl;
+  }
   return s;
+}
+function aiMinimax(t,c,x,y){
+  const ox=c.x,oy=c.y;c.x=x;c.y=y;
+  let worst=Infinity;
+  try{
+    worst=aiEval(t);
+    for(const e of teamChars(3-t).filter(k=>alive(k)&&!k.frozen)){
+      const ex=e.x,ey=e.y;
+      for(const q of lineCells(e,5,{noHurdle:true}).values()){e.x=q.x;e.y=q.y;const v=aiEval(t);if(v<worst)worst=v;}
+      e.x=ex;e.y=ey;
+    }
+  }finally{c.x=ox;c.y=oy;}
+  return worst;
 }
 function aiScoreAt(c,x,y){
   const ox=c.x,oy=c.y;c.x=x;c.y=y;
@@ -1038,9 +1074,12 @@ function aiSwapScore(a,b){
 }
 const aiN=t=>(Math.random()-.5)*2*aiLvl(t).noise;
 function aiBestCell(c,cells,t){
-  let best=null,bs=-1e9;
-  for(const q of cells){const v=aiScoreAt(c,q.x,q.y)+aiN(t);if(v>bs){bs=v;best=q;}}
-  return {cell:best,score:bs};
+  const L=aiLvl(t),arr=[];
+  for(const q of cells)arr.push({q,v:aiScoreAt(c,q.x,q.y)+aiN(t)});
+  if(!arr.length)return {cell:null,score:-1e9};
+  let mx=-1e9;for(const o of arr)if(o.v>mx)mx=o.v;
+  const tie=arr.filter(o=>o.v>=mx-(L.tie||0));
+  return {cell:tie[rnd(tie.length)].q,score:mx};
 }
 const aiParse=()=>UI.cells?[...UI.cells].map(k=>{const [x,y]=k.split(',').map(Number);return{x,y};}):[];
 const aiActor=()=>{const p=UI.popup;if(p&&p.type==='save')return p.target.team;return G.cur;};
@@ -1065,7 +1104,8 @@ function aiMoveChoice(t,bt){
   }
   const car=mine.find(carrying);
   if(car)return 'sprint';
-  if(free.length>=2&&Math.random()<.6)return 'team';
+  const L2=aiLvl(t);
+  if(free.length>=2&&Math.random()<(L2.vary?aiPers(t).team:.6))return 'team';
   return 'sprint';
 }
 function aiWant(c,i){
@@ -1190,6 +1230,18 @@ function aiAnswer(t){
     if(rr.length&&L.reroll&&G.tokens[t]>=2&&!G.aiRR&&Math.min(...G.dice)<=2&&!mv.some(carrying)){
       G.aiRR=true;const lo=G.dice[0]<=G.dice[1]?0:1;return answer({btn:'r'+lo});
     }
+    G.aiPlan=null;
+    if(L.v2&&AW.look){
+      const plans=[];
+      for(const c of mv){
+        const [d0,d1]=G.dice.map(v=>eff(c,v));
+        for(const [tag,as] of [['a',[[d0,d1]]],['b',[[d1,d0]]]]){
+          const arr=[...sprintCells(c,as).values()].map(q=>({q,v:aiScoreAt(c,q.x,q.y)})).sort((u,w)=>w.v-u.v).slice(0,3);
+          for(const o of arr){plans.push({mm:aiMinimax(t,c,o.q.x,o.q.y)+(carrying(c)?25:0),c,assign:tag,cell:o.q});}
+        }
+      }
+      if(plans.length){const mx=Math.max(...plans.map(p=>p.mm)),near=plans.filter(p=>p.mm>=mx-(L.tie||0));const plan=near[rnd(near.length)];G.aiPlan=plan;return answer({cell:{x:plan.c.x,y:plan.c.y}});}
+    }
     const base=aiEval(t);let best=null,bs=-1e9;
     for(const c of mv){
       const [d0,d1]=G.dice.map(v=>eff(c,v));
@@ -1201,6 +1253,7 @@ function aiAnswer(t){
     return answer({cell:{x:best.x,y:best.y}});
   }
   if(/which die goes across/.test(p)){
+    if(G.aiPlan&&G.aiPlan.c.id===G.sel&&id(G.aiPlan.assign))return answer({btn:G.aiPlan.assign});
     const c=ch(G.sel),[d0,d1]=G.dice.map(v=>eff(c,v));
     const a=aiBestCell(c,[...sprintCells(c,[[d0,d1]]).values()],t),b=aiBestCell(c,[...sprintCells(c,[[d1,d0]]).values()],t);
     return answer({btn:(a.score>=b.score?'a':'b')});
@@ -1210,6 +1263,15 @@ function aiAnswer(t){
     const rr=bt.filter(b=>/^r\d$/.test(b.id));
     const mv=cells.map(q=>charAt(q.x,q.y)).filter(Boolean);
     if(rr.length&&L.reroll&&G.tokens[t]>=2&&!G.aiRR&&free.some(i=>G.dice[i]<=1)){G.aiRR=true;return answer({btn:'r'+free.find(i=>G.dice[i]<=1)});}
+    G.aiPlan=null;
+    if(L.v2&&AW.look){
+      const plans=[];
+      for(const c of mv)for(const di of free){
+        const arr=[...lineCells(c,eff(c,G.dice[di])).values()].map(q=>({q,v:aiScoreAt(c,q.x,q.y)})).sort((u,w)=>w.v-u.v).slice(0,3);
+        for(const o of arr){plans.push({mm:aiMinimax(t,c,o.q.x,o.q.y)+(carrying(c)?25:0),c,di,cell:o.q});}
+      }
+      if(plans.length){const mx=Math.max(...plans.map(p=>p.mm)),near=plans.filter(p=>p.mm>=mx-(L.tie||0));const plan=near[rnd(near.length)];G.aiPlan=plan;G.aiDie=plan.di;return answer({cell:{x:plan.c.x,y:plan.c.y}});}
+    }
     let best=null,bs=-1e9,bd=free[0];
     for(const c of mv)for(const di of free){
       const m=lineCells(c,eff(c,G.dice[di]));
@@ -1253,6 +1315,7 @@ function aiAnswer(t){
     const nm=p.split(':')[0];
     let mover=G.chars.find(k=>k.name===nm&&k.team===t&&alive(k))||ch(G.sel);
     if(!mover)return aiFallback();
+    if(G.aiPlan&&G.aiPlan.c===mover){const pc=G.aiPlan.cell;G.aiPlan=null;if(cells.some(q=>q.x===pc.x&&q.y===pc.y))return answer({cell:{x:pc.x,y:pc.y}});}
     const base=aiEval(t),b=aiBestCell(mover,cells,t);
     if(id('stay')&&b.score<base-2)return answer({btn:'stay'});
     return answer({cell:b.cell});
@@ -1265,22 +1328,24 @@ function aiHook(){
   const t=aiActor();if(!G.ai[t])return;
   const iid=UI.iid;
   const go=()=>{if(UI.iid!==iid||!UI.resolve||G.over)return;if(UI.menu||UI.how){setTimeout(go,500);return;}try{aiAnswer(t);}catch(e){console.error(e);aiFallback();}};
-  setTimeout(go,UI.popup?1200:700);
+  setTimeout(go,UI.popup?1200:520+Math.random()*420);
 }
-const AI_RANK=['Rosie','Zoe','Hudson','Scarlett','Gabe','Danny','Bo','Gio','Kit','Tessa','Shay','Sam','Mia','Cal','Chloe','Kai','Dex','Maya','Clyde','Brody'];
+const AI_RANK=['Bo','Maya','Danny','Gio','Kit','Tessa','Brody','Shay','Zoe','Cal','Hudson','Clyde','Dex','Scarlett','Mia','Gabe','Chloe','Sam','Kai','Rosie'];
 function aiDraftPick(seat){
   const L=aiLvl(seat),taken=new Set(G.picks.map(p=>p.i));
   const mine=G.picks.filter(p=>p.seat===seat).map(p=>ROSTER[p.i].name);
   const avail=ROSTER.map((r,i)=>({r,i})).filter(o=>!taken.has(o.i));
-  let best=null,bs=-1e9;
+  const arr=[];
   for(const o of avail){
-    let v=40-AI_RANK.indexOf(o.r.name)*2+(Math.random()-.5)*L.noise*.6;
-    if(o.r.name==='Rosie'&&!mine.includes('Rosie'))v+=6;
-    if(['Zoe','Sam','Hudson','Scarlett'].includes(o.r.name)&&!mine.some(n=>['Zoe','Sam','Hudson','Scarlett'].includes(n)))v+=5;
-    if(['Danny','Gabe','Bo','Gio'].includes(o.r.name)&&mine.filter(n=>['Danny','Gabe','Bo','Gio'].includes(n)).length<2)v+=3;
-    if(v>bs){bs=v;best=o.i;}
+    let v=40-Math.max(0,AI_RANK.indexOf(o.r.name)-3)*2+(Math.random()-.5)*L.noise*.6;
+    if(['Zoe','Sam','Hudson','Scarlett','Kit'].includes(o.r.name)&&!mine.some(n=>['Zoe','Sam','Hudson','Scarlett','Kit'].includes(n)))v+=5;
+    if(['Danny','Gabe','Bo','Gio','Brody'].includes(o.r.name)&&mine.filter(n=>['Danny','Gabe','Bo','Gio','Brody'].includes(n)).length<2)v+=3;
+    if(o.r.name==='Rosie'&&!mine.includes('Rosie')&&mine.length>=3)v+=5;
+    arr.push({i:o.i,v});
   }
-  return best;
+  arr.sort((a,b)=>b.v-a.v);
+  const nr=arr.filter(o=>o.v>=arr[0].v-(L.dtie||0));
+  return nr[rnd(nr.length)].i;
 }
 let aiDraftT=null;
 function aiDraftHook(){
