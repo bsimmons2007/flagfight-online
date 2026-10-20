@@ -311,7 +311,7 @@ body[data-art="1"] .c.l1,body[data-art="1"] .c.l1.k{background-color:rgb(26 48 8
 body[data-art="1"] .c.l2,body[data-art="1"] .c.l2.k{background-color:rgb(66 34 47 / .22)}
 body[data-art="1"] .c.mud{background-color:rgb(122 86 48 / .85)}
 body[data-art="1"] .c.slide{background-color:rgb(47 106 168 / .85)}
-body[data-art="1"] .c.jail{background-color:rgb(75 80 96 / .8)}
+body[data-art="1"] .c.jail{background-color:rgb(75 80 96 / .3)}
 @media(prefers-reduced-motion:reduce){*{animation-duration:0s!important;transition-duration:0s!important}}
 </style>
 </head>
@@ -358,7 +358,7 @@ const ROSTER=[
 // ---------- board ----------
 const T=Array.from({length:H},()=>Array(W).fill('')), SAFE=Array.from({length:H},()=>Array(W).fill(false));
 const HOME={1:{x:3,y:7},2:{x:26,y:7}}, JAIL={1:[],2:[]}; // JAIL[t]: the 6 squares holding team t's captives, in enemy land
-for(let x=27;x<=29;x++)for(let y=0;y<=1;y++){JAIL[1].push({x,y});const [a,b]=rot(x,y);JAIL[2].push({x:a,y:b});}
+for(let x=26;x<=28;x++)for(let y=1;y<=2;y++){JAIL[1].push({x,y});const [a,b]=rot(x,y);JAIL[2].push({x:a,y:b});}
 (function(){
   const put=(list,fn)=>{for(const [x,y] of list){fn(x,y);const [a,b]=rot(x,y);fn(a,b);}};
   put([[6,2],[7,2],[6,12],[7,12],[10,3],[11,3],[10,4],[10,10],[10,11],[11,11],[12,6],[12,8],[14,3],[14,11],[9,7]],(x,y)=>T[y][x]='tree');
@@ -374,13 +374,13 @@ const baseCells=t=>{const o=[];for(let x=0;x<W;x++)for(let y=0;y<H;y++)if(SAFE[y
 // ---------- settings and sound ----------
 const SET=(()=>{let o={sound:true,rm:false,odds:false,board:'forest'};try{o.rm=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);Object.assign(o,JSON.parse(localStorage.getItem('flagfight.settings')||'{}'));}catch(e){}return o;})();
 const ART_OK={};
-function loadArt(){['board','board-campus'].forEach(n=>{const im=new Image();im.onload=()=>{ART_OK[n]=true;applySet();};im.src='art/'+n+'.png';});}
+function loadArt(){['board','board-campus'].forEach(n=>{const tryExt=i=>{const ex=['jpg','png','webp'];if(i>=ex.length)return;const im=new Image();im.onload=()=>{ART_OK[n]='art/'+n+'.'+ex[i];applySet();};im.onerror=()=>tryExt(i+1);im.src='art/'+n+'.'+ex[i];};tryExt(0);});}
 function applySet(){
   document.documentElement.dataset.rm=SET.rm?'1':'';
   if(!document.body)return;
   document.body.dataset.board=SET.board;
   const n=SET.board==='campus'&&ART_OK['board-campus']?'board-campus':(ART_OK.board?'board':'');
-  if(n){document.body.style.setProperty('--boardart',"url('art/"+n+".png')");document.body.dataset.art='1';}else{document.body.dataset.art='';}
+  if(n){document.body.style.setProperty('--boardart',"url('"+ART_OK[n]+"')");document.body.dataset.art='1';}else{document.body.dataset.art='';}
 }
 function saveSet(){try{localStorage.setItem('flagfight.settings',JSON.stringify(SET));}catch(e){}applySet();}
 let AC=null;
