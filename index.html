@@ -312,6 +312,31 @@ body[data-art="1"] .c.l2,body[data-art="1"] .c.l2.k{background-color:rgb(66 34 4
 body[data-art="1"] .c.mud{background-color:rgb(122 86 48 / .85)}
 body[data-art="1"] .c.slide{background-color:rgb(47 106 168 / .85)}
 body[data-art="1"] .c.jail{background-color:rgb(75 80 96 / .3)}
+.sk{position:relative;width:100%;aspect-ratio:4/3;background-size:100% 100%;container-type:inline-size;color:#1A1A2E;font-family:var(--body);filter:drop-shadow(0 4px 6px rgb(0 0 0 / .45));border-radius:3cqw}
+.sk>*{position:absolute}
+.sk.jail{filter:grayscale(1) brightness(.9)}
+.sk.sel{outline:4px solid var(--gold)}
+.sk-nm{left:8.4%;top:3.6%;width:31%;height:13%;display:flex;flex-direction:column;justify-content:center;gap:.4cqw;line-height:1}
+.sk-nm b{font-family:var(--disp);font-weight:800;font-size:4.7cqw;color:#fff;text-shadow:.3cqw .3cqw 0 #05080F,-.12cqw -.12cqw 0 #05080F,.12cqw -.12cqw 0 #05080F,-.12cqw .12cqw 0 #05080F;white-space:nowrap}
+.sk-nm span{font-size:1.9cqw;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff;text-shadow:.15cqw .15cqw 0 #05080F;white-space:nowrap}
+.sk.t0 .sk-nm b,.sk.t0 .sk-nm span{color:#1A1A2E;text-shadow:none}
+.sk-num{left:39.8%;top:4.2%;width:9%;height:12%;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:4.4cqw;color:#1A1A2E}
+.sk-num.s3{font-size:3.3cqw}
+.sk-art{left:6.4%;top:22.4%;width:41.6%;height:50.8%;display:flex;align-items:center;justify-content:center}
+.sk-tk{width:56%;aspect-ratio:1;border-radius:50%;border:.9cqw solid #05080F;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:11cqw;color:#05080F;background:var(--blue)}
+.sk.t2 .sk-tk{background:var(--red)}.sk.t0 .sk-tk{background:var(--gold)}
+.sk-act{left:52.6%;top:9.5%;width:41.6%;height:62%;display:flex;flex-direction:column;gap:3cqw;overflow:hidden}
+.sk-act b{font-size:3.6cqw;font-weight:800}
+.sk-act i{font-style:normal;background:#1A1A2E;color:var(--gold);font-size:1.9cqw;font-weight:800;border-radius:.8cqw;padding:.2cqw 1.1cqw;margin-left:1cqw;white-space:nowrap;vertical-align:.3cqw}
+.sk-act p{margin:.6cqw 0 0;font-size:3.2cqw;line-height:1.28;color:#3B3550}
+.sk-sv{left:6.4%;top:77.6%;width:9.4%;height:15%;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;gap:.3cqw}
+.sk-sv b{font-family:var(--disp);font-weight:800;font-size:4.4cqw}
+.sk-sv small{font-size:1.5cqw;font-weight:800;letter-spacing:.08em;color:#1A1A2E}
+.sk-pas{left:19.8%;top:80%;width:74%;height:14.6%;display:flex;flex-direction:column;justify-content:center;gap:.6cqw;font-size:2.9cqw;line-height:1.25;overflow:hidden}
+.sk-pas b{font-weight:800}
+body[data-cards="1"] .pool{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+body[data-cards="1"] .pgrid{grid-template-columns:1fr minmax(220px,300px) 1fr}
+body[data-cards="1"] .tgrid{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
 @media(prefers-reduced-motion:reduce){*{animation-duration:0s!important;transition-duration:0s!important}}
 </style>
 </head>
@@ -374,7 +399,7 @@ const baseCells=t=>{const o=[];for(let x=0;x<W;x++)for(let y=0;y<H;y++)if(SAFE[y
 // ---------- settings and sound ----------
 const SET=(()=>{let o={sound:true,rm:false,odds:false,board:'forest'};try{o.rm=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);Object.assign(o,JSON.parse(localStorage.getItem('flagfight.settings')||'{}'));}catch(e){}return o;})();
 const ART_OK={};
-function loadArt(){['board','board-campus'].forEach(n=>{const tryExt=i=>{const ex=['jpg','png','webp'];if(i>=ex.length)return;const im=new Image();im.onload=()=>{ART_OK[n]='art/'+n+'.'+ex[i];applySet();};im.onerror=()=>tryExt(i+1);im.src='art/'+n+'.'+ex[i];};tryExt(0);});}
+function loadArt(){['board','board-campus','card-blue','card-red','card-neutral'].forEach(n=>{const tryExt=i=>{const ex=['jpg','png','webp'];if(i>=ex.length)return;const im=new Image();im.onload=()=>{ART_OK[n]='art/'+n+'.'+ex[i];applySet();if(/^card-/.test(n)){document.body.dataset.cards='1';render();}};im.onerror=()=>tryExt(i+1);im.src='art/'+n+'.'+ex[i];};tryExt(0);});}
 function applySet(){
   document.documentElement.dataset.rm=SET.rm?'1':'';
   if(!document.body)return;
@@ -1418,7 +1443,20 @@ const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 const pipFace=v=>Array.from({length:9},(_,i)=>`<i class="${(PIPS[v]||[]).includes(i)?'on':''}"></i>`).join('');
 const parseAb=t=>t.split(' | ').map(p=>{const i=p.indexOf(':');return{n:p.slice(0,i),e:p.slice(i+1).trim()};});
 const shield=sv=>`<div class="shield"><svg viewBox="0 0 46 54" role="img" aria-label="Save ${sv} plus"><path d="M23 3 L42 9 V28 C42 40 33 48 23 52 C13 48 4 40 4 28 V9Z" fill="#FFF8E7" stroke="#1A1A2E" stroke-width="3" stroke-linejoin="round"/><text x="23" y="29" text-anchor="middle" font-size="19" font-weight="800" fill="#1A1A2E">${sv}+</text><text x="23" y="41" text-anchor="middle" font-size="9" font-weight="800" fill="#1A1A2E">SAVE</text></svg></div>`;
+const ini=n=>n.slice(0,2);
+function skinCard(r,o,url){
+  const team=o.team||0,st=o.state||'';
+  const acts=parseAb(r.active).map(a=>({n:a.n,e:a.e.replace(/\s*\(reaction\)/,''),cost:/reaction/.test(a.e)?'reaction':'1 token'}));
+  const pass=parseAb(r.passive),n=numOf(r.name);
+  const tag=st==='jail'?' · IN JAIL':st==='frozen'?' · FROZEN':'';
+  return `<div class="sk t${team} ${st} ${o.sel?'sel':''}" style="background-image:url('${url}')"><div class="sk-nm"><b>${r.name}</b><span>${r.type}${tag}</span></div><div class="sk-num ${String(n).length>2?'s3':''}">${n}</div>
+  <div class="sk-art"><div class="sk-tk">${ini(r.name)}</div></div>
+  <div class="sk-act">${acts.map(a=>`<div><b>${esc(a.n)}</b><i>${a.cost}</i><p>${esc(a.e)}</p></div>`).join('')}</div>
+  <div class="sk-sv"><b>${r.save}+</b><small>SAVE</small></div>
+  <div class="sk-pas">${pass.map(p=>`<div><b>${esc(p.n)}</b> ${esc(p.e)}</div>`).join('')}</div></div>`;
+}
 function pennant(r,o={}){
+  if(!o.clamp){const u=o.team===1?ART_OK['card-blue']:o.team===2?ART_OK['card-red']:ART_OK['card-neutral'];if(u)return skinCard(r,o,u);}
   const team=o.team||0,size=o.size||'sm',cl=!!o.clamp,st=o.state||'';
   let acts=parseAb(r.active).map(a=>({n:a.n,e:a.e.replace(/\s*\(reaction\)/,''),cost:/reaction/.test(a.e)?'reaction':'1 token'}));
   if(cl)acts=acts.slice(0,1);
