@@ -366,6 +366,52 @@ body[data-cards="1"] .tgrid{grid-template-columns:repeat(auto-fit,minmax(340px,1
 .rb-foot{display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-top:8px}
 .rb-foot span{font-weight:700;font-size:clamp(15px,calc(var(--vwu)*0.015),19px)}
 .rbtn{background:var(--night);color:#fff;border:none;min-height:64px;padding:0 52px;border-radius:14px;font-size:19px;font-weight:800}
+
+/* coin flip screens */
+.coinscr{min-height:var(--vhu);position:relative;overflow:hidden;background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;gap:28px;flex-direction:column;padding:40px 24px;box-sizing:border-box}
+.coinscr::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgb(255 213 74 / .16),transparent 60%);pointer-events:none}
+.coinscr.c3{flex-direction:row;gap:80px;flex-wrap:wrap}
+.coinscr.c3::before{background:radial-gradient(ellipse at 28% 50%,rgb(91 148 255 / .28),transparent 55%)}
+.coinscr.c3.t2::before{background:radial-gradient(ellipse at 28% 50%,rgb(255 100 89 / .28),transparent 55%)}
+.coinscr>*{position:relative}
+.cs-k{font-weight:800;letter-spacing:.14em;font-size:15px;color:var(--gold);text-transform:uppercase}
+.cs-h{font-family:var(--disp);font-weight:800;font-size:clamp(44px,6vw,84px);line-height:1;text-align:center}
+.cs-h.big{font-size:clamp(48px,5.6vw,80px);line-height:.95;text-align:left}
+.cs-p{color:var(--soft);font-size:18px}
+.cs-btns{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.cs-two{display:flex;gap:14px}
+.cs-side{display:flex;flex-direction:column;gap:16px;width:min(560px,100%)}
+.cbtn{width:280px;max-width:100%;min-height:72px;border-radius:16px;background:#243249;color:#EEF2F8;border:2px solid #3A4D6B;font-size:24px;font-weight:800;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.cbtn small{font-size:13px;font-weight:700;color:#B4C2D8;letter-spacing:.06em;text-transform:uppercase}
+.cbtn.g{background:#2F6A3F;border-color:#4A9A5F;color:#fff}.cbtn.g small{color:#D5EBDA}
+.cbtn:hover{filter:brightness(1.12)}
+.cs-two .cbtn{flex:1;width:auto;min-height:80px;font-size:20px}
+.bigcoin{width:var(--cs);height:var(--cs);border-radius:50%;background:var(--gold);border:calc(var(--cs)*.05) solid #B8901A;box-shadow:inset 0 0 0 calc(var(--cs)*.04) #E8B92E,0 40px 50px -10px rgb(0 0 0 / .6);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#1A1A2E;box-sizing:border-box;max-width:80vw;max-height:80vw}
+.bc-t{font-family:var(--disp);font-weight:800;font-size:calc(var(--cs)*.5);line-height:1}
+.c3 .bc-t{font-size:calc(var(--cs)*.21)}
+.bc-s{font-weight:800;letter-spacing:.12em;font-size:calc(var(--cs)*.06)}
+.coinsub{color:var(--soft);font-size:19px;margin-top:-30px}
+/* round break pennants */
+.rbreak2{position:fixed;inset:0;z-index:30;overflow:auto;background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:24px;box-sizing:border-box}
+.rbreak2::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 28% 50%,rgb(91 148 255 / .22),transparent 55%);pointer-events:none}
+.rbreak2.t2::before{background:radial-gradient(ellipse at 72% 50%,rgb(255 100 89 / .22),transparent 55%)}
+.rbreak2>*{position:relative}
+.rbreak2 .rk{font-weight:800;letter-spacing:.14em;font-size:15px;color:var(--gold);text-transform:uppercase}
+.pens{display:flex;gap:clamp(20px,5vw,70px);flex-wrap:wrap;justify-content:center}
+.pen{width:min(400px,80vw);height:min(480px,96vw);background:#172030;color:var(--text);clip-path:polygon(0 0,100% 0,100% 84%,50% 100%,0 84%);display:flex;flex-direction:column;align-items:center;padding-top:50px;box-sizing:border-box;gap:10px}
+.pen.t1.lead{background:var(--blue);color:#0A0F1C}.pen.t2.lead{background:var(--red);color:#0A0F1C}
+.pn{font-family:var(--disp);font-weight:800;font-size:clamp(34px,4.4vw,64px);line-height:1;max-width:90%;text-align:center;overflow-wrap:anywhere}
+.pen:not(.lead) .pn{color:var(--blue)}.pen.t2:not(.lead) .pn{color:var(--red)}
+.pw{font-weight:700}.pen:not(.lead) .pw{color:#9FB0C8}
+.pp{display:flex;gap:14px;margin-top:20px}
+.pp i{width:78px;height:78px;border-radius:50%;border:6px dashed #3A4D6B}
+.pp i.on{background:var(--gold);border:6px solid #0A0F1C}
+.pen.lead .pp i:not(.on){border-color:#0A0F1C}
+.ps{font-family:var(--disp);font-weight:800;font-size:70px}.pen:not(.lead) .ps{color:#9FB0C8}
+.rbreak2 .rwhy{color:var(--soft);font-size:18px;font-weight:700;text-align:center;max-width:800px}
+.rbtn2{min-height:60px;padding:0 48px;border-radius:14px;background:#2F6A3F;color:#fff;border:1px solid #4A9A5F;font-size:18px;font-weight:800;font-family:inherit;cursor:pointer}
+.rbtn2:hover{filter:brightness(1.12)}
+.rbreak2 .rnote{color:var(--soft);font-size:15px;font-weight:700}
 @media(prefers-reduced-motion:reduce){*{animation-duration:0s!important;transition-duration:0s!important}}
 </style>
 </head>
@@ -1030,15 +1076,21 @@ async function run(){
 }
 
 // ---------- setup / draft ----------
-async function flipCoin(){
+function flipCoin(){
   const n1=document.getElementById('n1'),n2=document.getElementById('n2');
   if(n1&&n2)G.names={1:n1.value.trim()||'Blue',2:n2.value.trim()||'Red'};
   if(UI.opp!==undefined){G.ai=UI.opp?{1:null,2:UI.opp}:null;if(UI.opp&&G.names[2]==='Red')G.names[2]='Computer';}
-  G.drafter=1+rnd(2);
-  const A=G.drafter,B=3-A;
-  G.order=[A,B,B,A,A,B,B,A,A,B,B,A];
-  if(!SET.rm){sfx('coin');UI.coin={end:A===1?1800:1980};render();await sleep(3000);UI.coin=null;}
+  G.flip=null;G.phase='call';render();
+}
+async function callCoin(h){
+  const res=rnd(2)===0?'H':'T';
+  G.flip={call:h,res,win:h===res?1:2};
+  if(!SET.rm){sfx('coin');UI.coin={end:res==='H'?1800:1980,call:h};render();await sleep(3000);UI.coin=null;}
   G.phase='toss';render();
+}
+function chooseFirst(t){
+  G.drafter=t;G.order=[t,3-t,3-t,t,t,3-t,3-t,t,t,3-t,3-t,t];
+  startDraft();
 }
 function startDraft(){G.phase='draft';render();}
 function newDraft(){newGame();flipCoin();}
@@ -1574,11 +1626,23 @@ function screenTitle(){
    <button class="btn gold" onclick="G.rules.stack=document.getElementById('rstack').checked;flipCoin()">Flip the coin</button>
    <button class="btn ghost" data-act="howopen">How to play</button></div></div>${UI.how?howHTML():''}`;
 }
+function coinFace(txt,sub,size){return `<div class="bigcoin" style="--cs:${size}px"><span class="bc-t">${txt}</span>${sub?`<span class="bc-s">${sub}</span>`:''}</div>`;}
+function screenCall(){
+  const p=G.names[1];
+  return `<div class="coinscr c1"><span class="cs-k">Step 1 of 3 · Coin flip</span><span class="cs-h">${G.ai?'Call it in the air':esc(p)+', call it in the air'}</span>${coinFace('?','',240)}<span class="cs-p">Win the flip and you choose who drafts first.</span>
+  <div class="cs-btns"><button class="cbtn g" data-act="call" data-v="H">Heads<small>${esc(tn(1))} flag</small></button><button class="cbtn" data-act="call" data-v="T">Tails<small>${esc(tn(2))} flag</small></button></div></div>`;
+}
 function screenToss(){
-  const A=G.drafter,B=3-A;
-  return `<div class="toss t${A}"><div class="coin">${esc(tn(A)[0].toUpperCase())}</div><span style="font-weight:800;letter-spacing:.12em;font-size:20px;position:relative">COIN FLIP RESULT</span>
-  <div class="res" style="font-size:min(300px,${Math.floor(1100/Math.max(5,tn(A).length))}px,calc(var(--vwu)*${(1.7/Math.max(5,tn(A).length)).toFixed(4)}))">${esc(tn(A))}<br>first</div>
-  <div style="display:flex;align-items:center;gap:24px;margin-top:30px;flex-wrap:wrap;position:relative"><button class="btn" onclick="startDraft()">Start the draft</button><span style="font-weight:700;font-size:18px">${esc(tn(B))} picks the next two.</span></div></div>`;
+  const f=G.flip||{call:'H',res:'H',win:1};
+  const w=f.win,l=3-w,face=f.res==='H'?'HEADS':'TAILS',flagT=f.res==='H'?1:2;
+  const calledWord=f.call==='H'?'heads':'tails';
+  const humanWin=!(G.ai&&G.ai[w]);
+  const head=w===1?(G.ai?'You called it':esc(tn(1))+' called it'):(G.ai?'Computer wins it':esc(tn(2))+' wins it');
+  const sub=`${esc(tn(1))} called ${calledWord}. It landed ${face.toLowerCase()}.`;
+  let body;
+  if(humanWin)body=`<span class="cs-p">${w===1&&G.ai?'Who drafts first?':esc(tn(w))+' chooses. Who drafts first?'}</span><div class="cs-two"><button class="cbtn g" data-act="first" data-v="${w}">${w===1&&G.ai?'I’ll draft first':esc(tn(w))+' first'}</button><button class="cbtn" data-act="first" data-v="${l}">${G.ai&&l!==1?'Computer first':esc(tn(l))+' first'}</button></div>`;
+  else body=`<span class="cs-p">${esc(tn(w))} drafts first.</span><div class="cs-two"><button class="cbtn g" data-act="first" data-v="${w}">Start the draft</button></div>`;
+  return `<div class="coinscr c3 t${flagT}"><div style="flex:none">${coinFace(face,esc(tn(flagT)).toUpperCase()+' FLAG',380)}</div><div class="cs-side"><span class="cs-k">Step 3 of 3 · ${w===1?'You win the flip':esc(tn(w))+' wins the flip'}</span><span class="cs-h big">${head}</span><span class="cs-p" style="margin:0">${sub}</span>${body}</div></div>`;
 }
 function screenDraft(){
   const n=G.picks.length,seat=G.order[n];
@@ -1589,7 +1653,7 @@ function screenDraft(){
   const slots=t=>{const l=G.picks.filter(p=>p.seat===t);return Array.from({length:6},(_,i)=>l[i]?`<span class="slot full" style="background:${TC[t]}">${esc(ROSTER[l[i].i].name.slice(0,2))}</span>`:'<span class="slot"></span>').join('');};
   const cnt=t=>G.picks.filter(p=>p.seat===t).length;
   const cards=ROSTER.map((r,i)=>{const p=G.picks.find(p=>p.i===i);return `<div>${pennant(r,{team:p?p.seat:0,size:'sm'})}${p?`<div class="took t${p.seat}">Drafted by ${esc(tn(p.seat))}</div>`:`<button class="dbtn t${seat}" onclick="pickDraft(${i})">Draft for ${esc(tn(seat))}</button>`}</div>`;}).join('');
-  return `<div class="wrap"><div class="dhead"><div><div class="lbl">Snake draft · ${esc(tn(G.drafter))} won the flip</div><h1>Draft your squad</h1></div><div style="display:flex;gap:14px;align-items:center"><div class="order">${order}</div>${menuBtn()}</div></div>
+  return `<div class="wrap"><div class="dhead"><div><div class="lbl">Snake draft · ${esc(tn(G.flip?G.flip.win:G.drafter))} won the flip</div><h1>Draft your squad</h1></div><div style="display:flex;gap:14px;align-items:center"><div class="order">${order}</div>${menuBtn()}</div></div>
   <div class="drow"><div class="slotp"><div style="display:flex;align-items:center;gap:10px">${chipH(1)}<span class="lbl" style="text-transform:none;letter-spacing:0;font-size:13px">${cnt(1)} of 6 drafted</span></div><div class="slots">${slots(1)}</div></div>
   <div class="pickp">${chipH(seat)}<div class="big">Pick ${run} more character${run>1?'s':''}</div><span style="color:#D9C98A;font-size:13px">${next?`Then ${esc(tn(next))} picks ${run2}.`:'Last pick.'}</span></div>
   <div class="slotp r"><div style="display:flex;align-items:center;gap:10px"><span class="lbl" style="text-transform:none;letter-spacing:0;font-size:13px">${cnt(2)} of 6 drafted</span>${chipH(2)}</div><div class="slots">${slots(2)}</div></div></div>
@@ -1624,13 +1688,12 @@ function jailPopHTML(p){
   return `<div class="drawer"><div class="dt">In jail</div><span class="lbl">${esc(tn(p.c.team))} · ${p.caps.length} of 6</span>${caps}${rest}</div>`;
 }
 function roundPopHTML(p){
-  const t=p.team,o=3-t,sc=G.score;
-  const pips=n=>Array.from({length:2},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('');
+  const t=p.team,sc=G.score;
   const b=UI.buttons[0]||{id:'ok',label:'Continue'};
-  return `<div class="rbreak t${t}"><div class="rb-in"><span class="rb-k">Round ${G.round} over</span><span class="rb-big" style="font-size:min(230px,${Math.floor(1300/Math.max(6,tn(t).length))}px,calc(var(--vwu)*${(1.9/Math.max(6,tn(t).length)).toFixed(4)}))">Point<br>${esc(tn(t))}</span>
-  <div class="rb-score"><span class="rb-team"><b>${esc(tn(1))}</b><em class="rpips">${pips(sc[1])}</em></span><span class="rb-dash">to</span><span class="rb-team"><em class="rpips">${pips(sc[2])}</em><b>${esc(tn(2))}</b></span></div>
-  <span class="rb-why">${esc(p.why)}.</span>
-  <div class="rb-foot"><button class="rbtn" data-b="${b.id}">${esc(b.label)}</button><span>${esc(tn(o))} goes first. First to 2 points wins.</span></div></div></div>`;
+  const pips=(n,col)=>Array.from({length:2},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('');
+  const who=k=>G.ai&&G.ai[k]?'Computer':(G.ai?'You':'Player '+k);
+  const pen=k=>`<div class="pen t${k} ${sc[k]>sc[3-k]||k===t?'lead':''}"><span class="pn">${esc(tn(k))}</span><span class="pw">${who(k)}</span><span class="pp">${pips(sc[k])}</span><span class="ps">${sc[k]}</span></div>`;
+  return `<div class="rbreak2 t${t}"><span class="rk">Round ${G.round} over · Point ${esc(tn(t))}</span><div class="pens">${pen(1)}${pen(2)}</div><span class="rwhy">${esc(p.why)}.</span><button class="rbtn2" data-b="${b.id}">${esc(b.label)}</button><span class="rnote">${esc(tn(3-t))} goes first. First to 2 points wins.</span></div>`;
 }
 function popupHTML(){
   const p=UI.popup;if(!p)return '';
@@ -1707,8 +1770,9 @@ function render(){
   if(window.__fast)return;
   applySet();
   const app=document.getElementById('app');
-  document.getElementById('fx').innerHTML=UI.coin?`<div class="coinov"><div class="coinwrap"><div class="coin3d" style="--end:${UI.coin.end}deg"><div class="cface f">${esc(tn(1)[0].toUpperCase())}</div><div class="cface b">${esc(tn(2)[0].toUpperCase())}</div></div></div><div class="coinshadow"></div><div class="coincap">Flipping the coin...</div></div>`:(UI.banner?`<div class="banner">${esc(UI.banner)}</div>`:'');
+  document.getElementById('fx').innerHTML=UI.coin?`<div class="coinov"><div class="coinwrap"><div class="coin3d" style="--end:${UI.coin.end}deg"><div class="cface f">H</div><div class="cface b">T</div></div></div><div class="coinshadow"></div><div class="coincap">Flipping<span style="color:var(--gold)">...</span></div><div class="coinsub">${esc(tn(1))} called ${UI.coin.call==='H'?'heads':'tails'}.</div></div>`:(UI.banner?`<div class="banner">${esc(UI.banner)}</div>`:'');
   if(G.phase==='setup'){app.innerHTML=screenTitle();return;}
+  if(G.phase==='call'){app.innerHTML=screenCall()+(UI.coin?'':'');return;}
   if(G.phase==='toss'){app.innerHTML=screenToss();return;}
   if(G.phase==='draft'){app.innerHTML=screenDraft();aiDraftHook();return;}
   app.innerHTML=screenPlay();
@@ -1736,6 +1800,8 @@ document.addEventListener('click',e=>{
     if(a==='sumopen'){UI.summary=true;render();return;}
     if(a==='sumclose'){UI.summary=false;render();return;}
     if(a==='sumcopy'){copySummary();return;}
+    if(a==='call'){if(!UI.coin)callCoin(act.dataset.v);return;}
+    if(a==='first'){chooseFirst(+act.dataset.v);return;}
     if(a==='opp'){keepTitle();UI.opp=act.dataset.v;render();return;}
     if(a.startsWith('tab:')){UI.tab=a.slice(4);render();return;}
     if(a==='peek'){UI.peek=!UI.peek;render();return;}
